@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stacklands Guide</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:13px;background:#7a9a68;color:#1a1208;height:100vh;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100vh}
+/* topbar */
+#topbar{flex-shrink:0;background:#1a180e;padding:6px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-bottom:2px solid #080604}
+.logo{color:#c89010;font-weight:bold;font-size:14px}
+#srch{background:#2a2010;border:1px solid #4a3820;border-radius:4px;padding:4px 8px;color:#e8e0c8;font-size:12px;outline:none;width:160px}
+.btn{background:#2a2010;border:1px solid #4a3820;border-radius:4px;padding:3px 8px;color:#e8e0c8;cursor:pointer;font-size:11px}
+.btn:hover{background:#c89010;color:#1a1208}
+.zlbl{color:#7a6840;font-size:10px;min-width:28px;text-align:center}
+/* tabs */
+.tabs{flex-shrink:0;display:flex;background:#141208;border-bottom:2px solid #080604}
+.tab{flex:1;padding:5px;font-size:11px;font-weight:bold;background:none;border:none;color:#6a5840;cursor:pointer;border-bottom:2px solid transparent}
+.tab.on{color:#c89010;border-bottom-color:#c89010}
+/* panes */
+.pane{display:none;flex:1;overflow:hidden;flex-direction:column;min-height:0}
+.pane.on{display:flex}
+/* moon */
+.moon-strip{flex-shrink:0;background:#1a180e;padding:5px 10px;display:flex;align-items:center;gap:6px;border-bottom:2px solid #080604}
+.moon-n{font-size:16px;font-weight:bold;color:#c89010;min-width:26px;text-align:center}
+.mbtn{width:20px;height:20px;background:#2a2010;border:1px solid #4a3820;border-radius:3px;color:#e8e0c8;cursor:pointer;font-size:13px;font-weight:bold}
+.mbtn:hover{background:#c89010;color:#1a1208}
+.mevt{flex:1;font-size:10px;padding:2px 6px;border-radius:3px;font-weight:bold}
+.mev-ok{background:#182410;color:#60b040}
+.mev-warn{background:#281800;color:#c09030}
+.mev-alert{background:#280e0e;color:#d04040}
+.mev-none{background:rgba(0,0,0,.1);color:#4a3820}
+/* moon ranges */
+.moon-ranges{flex-shrink:0;background:#141208;border-bottom:2px solid #080604;padding:4px 8px}
+.mr-row{display:flex;align-items:flex-start;gap:5px;margin-bottom:2px}
+.mr-lbl{font-size:10px;font-weight:bold;color:#4a3820;min-width:60px;flex-shrink:0;padding-top:2px}
+.mr-lbl.cur{color:#c89010}
+.mr-chips{display:flex;flex-wrap:wrap;gap:2px}
+.mc{font-size:10px;padding:1px 5px;border-radius:3px;background:#2a2010;border:1px solid #3a2810;color:#7a6840;cursor:pointer}
+.mc.cur{background:#2a3010;border-color:#6a7820;color:#b0c840}
+.mc:hover{border-color:#c89010;color:#c89010}
+/* panels */
+.panel{display:flex;flex-direction:column;flex-shrink:0;border-bottom:2px solid #4a3820;overflow:hidden}
+.panel.grow{flex:1 1 0;min-height:60px;flex-shrink:1}
+.ph{flex-shrink:0;background:#1a180e;padding:5px 10px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:bold;color:#c89010;border-bottom:2px solid #080604;cursor:pointer;user-select:none}
+.ph-r{margin-left:auto;font-weight:normal;font-size:11px;color:#5a4830;display:flex;align-items:center;gap:5px}
+.ph-arr{font-size:10px;transition:transform .15s}
+.ph-arr.open{transform:rotate(90deg)}
+.pb{flex:1;overflow-y:auto;min-height:0;background:#c8b888}
+.pb.closed{display:none}
+/* cat bar */
+.cat-bar{flex-shrink:0;background:#1e1a0e;padding:4px 8px;display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid #080604}
+.cpill{padding:2px 6px;border-radius:3px;border:1px solid #3a2810;background:#141208;cursor:pointer;font-size:10px;color:#7a6840;font-weight:bold}
+.cpill:hover{border-color:#c89010;color:#e8e0c8}
+.cpill.on{background:#c89010;color:#1a1208;border-color:#a87008}
+/* resize */
+.rh{flex-shrink:0;height:7px;background:#141208;cursor:ns-resize;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #080604}
+.rh::before{content:'';width:32px;height:2px;background:#3a2810;border-radius:2px}
+.rh:hover::before{background:#c89010}
+/* table */
+.tbl-wrap{padding:5px}
+.tbl-card{background:#d4c898;border-radius:6px;border:2px solid #5a4828;overflow:hidden}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+thead th{background:#1a180e;padding:4px 5px;text-align:left;font-size:10px;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;color:#c89010;border-bottom:2px solid #080604}
+tbody tr.dr{border-bottom:1px solid #b0a078;cursor:pointer;background:#d4c898}
+tbody tr.dr:hover{background:#c8bc8a}
+tbody tr.xr{display:none;background:#e4d8a8}
+tbody tr.xr.open{display:table-row}
+tbody tr.xr td{padding:5px 8px 6px 16px;font-size:12px;color:#1a1208;border-bottom:1px solid #b0a078;line-height:1.6}
+tbody tr.xr td ul{padding-left:16px;margin:2px 0}
+td{padding:4px 5px;vertical-align:middle;overflow:hidden;word-break:break-word;line-height:1.35}
+.t-arr{font-size:9px;color:#7a6840;display:inline-block;transition:transform .15s}
+.t-arr.open{transform:rotate(90deg)}
+.t-nm{font-weight:bold;font-size:12px;color:#1a1208}
+.t-ing{color:#4a3820;font-size:11px;line-height:1.4}
+.dlcn{font-size:10px;color:#9070a8}
+.badge{display:inline-block;padding:1px 5px;border-radius:2px;font-size:10px;font-weight:bold;border:1px solid rgba(0,0,0,.12)}
+.badge-Basic{background:#d8e8d0;color:#1a4010}.badge-Building{background:#b8d0e4;color:#10304a}
+.badge-Cooking{background:#e8d0b0;color:#5a2800}.badge-Military{background:#ddb8b8;color:#5a1010}
+.badge-Resource{background:#ccc0e0;color:#2a1050}.badge-Important{background:#e8d898;color:#483800}
+.badge-Raw{background:#c8c4bc;color:#3a3028}.badge-Location{background:#d8c0e8;color:#401850}
+.badge-Special{background:#f8d8b0;color:#5a3000}.badge-Enemy{background:#f0c4b0;color:#5a1800}
+.src{display:inline-block;padding:1px 4px;border-radius:2px;font-size:9px;font-weight:bold;margin-top:1px}
+.src-craft{background:#c8e8c0;color:#1a4810}.src-drop{background:#f0c4c4;color:#5a0808}
+.src-found{background:#c4d4f0;color:#082050}.src-event{background:#f0e4a8;color:#4a3000}
+.src-dlc{background:#e0c4f0;color:#380858}
+.sbtn{background:none;border:none;cursor:pointer;font-size:11px;padding:0 2px;color:#8a6820}
+.sbtn.on{color:#c89010}
+.qbtn{background:none;border:1px solid #b0a078;border-radius:2px;padding:0 3px;font-size:9px;color:#7a6840;cursor:pointer}
+.tbl-ft{padding:3px 8px;background:#1a180e;border-top:1px solid #080604;font-size:10px;color:#4a3820;display:flex;justify-content:space-between;flex-shrink:0}
+/* craft list */
+.cl-inner{padding:3px 5px}
+.cl-item{display:flex;align-items:center;gap:4px;background:#d4c898;border-radius:3px;border:1px solid #b0a078;padding:3px 6px;font-size:11px;margin-bottom:2px}
+.cl-nm{font-weight:bold;cursor:pointer;flex-shrink:0;min-width:55px}.cl-nm:hover{text-decoration:underline}
+.cl-qa{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.cl-qb{width:15px;height:15px;border-radius:2px;border:1px solid #b0a078;background:#b8a870;cursor:pointer;font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center}
+.cl-qd{font-weight:bold;font-size:10px;color:#2a1800;min-width:20px;text-align:center}
+.cl-pr{flex:1;display:flex;align-items:center;gap:3px}
+.cl-pob{flex:1;height:5px;background:#9a8860;border-radius:3px;overflow:hidden;min-width:20px}
+.cl-pib{height:100%;background:#c89010;border-radius:3px;transition:width .3s}
+.cl-done{background:none;border:1px solid #b0a078;border-radius:2px;padding:1px 4px;font-size:10px;cursor:pointer;color:#4a3820}
+.cl-done:hover{background:#c8b878;color:#1a1000}
+.cl-rm{background:none;border:none;color:#905050;cursor:pointer;font-size:10px;padding:0 2px}
+.cl-empty{padding:6px 8px;font-size:11px;color:#7a6840}
+.tot-box{margin:2px 5px 4px;background:#a89858;border-radius:4px;border:1px solid #5a4828;padding:3px 7px}
+.tot-t{font-size:10px;font-weight:bold;color:#1a1000;margin-bottom:2px}
+.tot-grid{display:flex;flex-wrap:wrap;gap:2px}
+.tt{display:inline-flex;align-items:center;gap:2px;background:#d4c898;border:1px solid #b0a078;border-radius:2px;padding:1px 5px;font-size:10px}
+.tt-q{font-weight:bold;color:#1a4010;background:#c8e8c0;border-radius:1px;padding:0 3px}
+/* checklist */
+.chl-add-bar{flex-shrink:0;padding:4px 6px;background:#1e1a0e;border-bottom:1px solid #080604;display:flex;gap:3px}
+.chl-si{flex:1;font-size:11px;padding:3px 7px;background:#2a2010;border:1px solid #4a3820;border-radius:3px;color:#e8e0c8;outline:none}
+.chl-ab{padding:3px 7px;border-radius:3px;border:1px solid #4a3820;background:#b8a870;color:#1a1000;font-size:10px;font-weight:bold;cursor:pointer}
+.chl-sug{position:absolute;background:#d4c898;border:1px solid #b0a078;border-radius:4px;max-height:70px;overflow-y:auto;z-index:100}
+.chl-sug-i{padding:2px 8px;cursor:pointer;font-size:11px;border-bottom:1px solid #b0a078}
+.chl-sug-i:hover{background:#c8bc8a}
+.chl-body{padding:3px 5px}
+.chl-item{display:flex;align-items:center;gap:3px;background:#d4c898;border-radius:3px;border:1px solid #b0a078;padding:2px 6px;font-size:11px;margin-bottom:2px}
+.chl-chk{cursor:pointer;color:#4a3820;user-select:none;flex-shrink:0}
+.chl-nm{font-weight:bold;flex:1;cursor:pointer}.chl-nm:hover{text-decoration:underline}
+.chl-nm.done{text-decoration:line-through;color:#7a6840}
+.chl-qi{width:32px;font-size:10px;padding:1px 3px;text-align:center;background:#2a2010;border:1px solid #4a3820;border-radius:2px;color:#e8e0c8}
+.chl-src{font-size:9px;padding:1px 4px;border-radius:2px;background:#c4d4f0;color:#082050;font-weight:bold}
+.chl-src.auto{background:#c8e8c0;color:#1a4810}
+.chl-rm{background:none;border:none;color:#905050;cursor:pointer;font-size:10px;padding:0 2px}
+/* what now */
+.wn-search-bar{flex-shrink:0;padding:5px 8px;background:#1a180e;border-bottom:1px solid #080604;display:flex;gap:4px}
+.wn-si{flex:1;font-size:11px;padding:3px 8px;background:#2a2010;border:1px solid #4a3820;border-radius:3px;color:#e8e0c8;outline:none}
+.wn-ab{padding:3px 8px;border-radius:3px;border:1px solid #4a3820;background:#b8a870;color:#1a1000;font-size:10px;font-weight:bold;cursor:pointer}
+.wn-list{padding:4px 6px 5px}
+.wn-item{background:#d4c898;border-radius:4px;border:1px solid #b0a078;padding:4px 7px;margin-bottom:3px}
+.wn-ih{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.wn-ic{font-size:12px;font-weight:bold;color:#3a2000}
+.wn-iq{display:flex;align-items:center;gap:3px;font-size:10px;color:#7a6840}
+.wn-rm{background:none;border:none;color:#905050;cursor:pointer;font-size:11px}
+.wn-sit{font-size:10px;color:#7a6840;margin-bottom:2px;font-style:italic}
+.wn-sol{font-size:11px;color:#1a1208;line-height:1.5;white-space:pre-line}
+.wn-links{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px}
+.wn-link{font-size:10px;font-weight:bold;color:#2a1800;background:#c8b860;border:1px solid #b0a078;padding:1px 5px;border-radius:2px;cursor:pointer}
+.wn-empty{padding:8px;font-size:11px;color:#7a6840}
+/* strategic priorities */
+.sp-phase-bar{flex-shrink:0;padding:4px 7px;background:#1e1a0e;border-bottom:1px solid #080604;display:flex;gap:3px;flex-wrap:wrap}
+.sp-cat-bar{flex-shrink:0;padding:3px 7px;background:#141208;border-bottom:1px solid #080604;display:flex;gap:2px;flex-wrap:wrap}
+.phbtn{padding:3px 8px;border-radius:3px;border:1px solid #3a2810;background:#141208;color:#6a5840;font-size:10px;font-weight:bold;cursor:pointer}
+.phbtn.on-all{background:#c89010;color:#1a1208;border-color:#a87008}
+.phbtn.on-early{background:#c8e0b0;color:#1e4a10;border-color:#1e4a10}
+.phbtn.on-mid{background:#f0d888;color:#4a3000;border-color:#4a3000}
+.phbtn.on-late{background:#d8c0e8;color:#3a1060;border-color:#3a1060}
+.scp{padding:2px 5px;border-radius:3px;border:1px solid #3a2810;background:#141208;color:#6a5840;font-size:10px;font-weight:bold;cursor:pointer}
+.scp.on{background:#3a2810;border-color:#5a4830;color:#c89840}
+.sp-list{padding:3px 5px 5px}
+.sp-item{display:flex;align-items:flex-start;gap:3px;padding:4px 5px;border-radius:3px;border:1px solid #b0a078;background:#d4c898;margin-bottom:2px;cursor:grab}
+.sp-item:hover{background:#c8bc8a}
+.sp-item.dragging{opacity:.4}
+.sp-item.drag-over{background:#d0c870;border-color:#8a7820}
+.sp-dh{color:#7a6840;font-size:10px;flex-shrink:0;padding-top:2px;user-select:none}
+.sp-chk{cursor:pointer;font-size:12px;flex-shrink:0;user-select:none;color:#4a3820}
+.sp-txt{flex:1;font-size:11px;color:#1a1208;line-height:1.4}
+.sp-item.done .sp-txt{text-decoration:line-through;color:#7a6840;opacity:.7}
+.sp-tags{display:flex;flex-wrap:wrap;gap:2px;flex-shrink:0}
+.ph-tag{font-size:9px;padding:1px 4px;border-radius:2px;font-weight:bold}
+.ph-early{background:#c8e0b0;color:#1e4a10}
+.ph-mid{background:#f0d888;color:#4a3000}
+.ph-late{background:#d8c0e8;color:#3a1060}
+.cat-tag-sp{font-size:9px;padding:1px 4px;border-radius:2px;background:#c8b860;color:#2a1800;font-weight:bold;cursor:pointer}
+.sp-lnk{font-size:9px;padding:0 3px;border:1px solid #b0a078;border-radius:2px;background:#c8b860;color:#2a1800;cursor:pointer;font-weight:bold}
+/* combat calc */
+.cc-body{padding:7px 8px;display:flex;flex-direction:column;gap:6px}
+.cc-cols{display:flex;gap:8px}
+.cc-left,.cc-right{flex:1}
+.cc-sec{font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:.06em;color:#7a6840;margin-bottom:4px}
+.cc-fld{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.cc-fld label{font-size:10px;font-weight:bold;color:#5a4830;width:28px;flex-shrink:0}
+.cc-fld input{flex:1;font-size:11px;padding:2px 5px;background:#2a2010;border:1px solid #4a3820;border-radius:3px;color:#e8e0c8;outline:none}
+.cc-fld input:focus{border-color:#c89010}
+.cc-sel{width:100%;background:#2a2010;border:1px solid #4a3820;border-radius:3px;padding:3px 6px;color:#e8e0c8;font-size:10px;outline:none;margin-bottom:3px}
+.cc-ql{font-size:9px;color:#7a6840;margin-bottom:2px;font-weight:bold}
+.cc-chips{display:flex;flex-wrap:wrap;gap:2px}
+.cc-chip{font-size:10px;padding:1px 5px;border-radius:3px;background:#2a2010;border:1px solid #3a2810;color:#8a7860;cursor:pointer}
+.cc-chip:hover,.cc-chip.has{border-color:#5a8820;color:#80c040}
+.cc-stats{background:#2a2010;border-radius:3px;padding:5px 7px;font-size:11px;border:1px solid #4a3820}
+.cc-stat{color:#7a8860;margin-bottom:1px}
+.cc-stat strong{color:#e8e0c8}
+.cc-go{width:100%;padding:5px;border-radius:4px;border:1px solid #4a3820;background:#b8a870;color:#1a1000;font-size:11px;font-weight:bold;cursor:pointer}
+.cc-go:hover{background:#a09060}
+.cc-res{border-radius:4px;overflow:hidden;margin-top:3px;display:none}
+.cc-banner{padding:7px;text-align:center}
+.res-win .cc-banner{background:#182410}
+.res-lose .cc-banner{background:#280e0e}
+.res-close .cc-banner{background:#281800}
+.res-title{font-size:14px;font-weight:bold;letter-spacing:.06em;margin-bottom:2px}
+.res-win .res-title{color:#60c030}
+.res-lose .res-title{color:#d04040}
+.res-close .res-title{color:#c09030}
+.res-detail{font-size:10px;color:#8a9868}
+/* vm */
+.vm-sum{display:flex;gap:4px;flex-wrap:wrap;padding:5px 7px;background:#1e1a0e;border-bottom:2px solid #080604;flex-shrink:0}
+.vm-box{background:#141208;border-radius:4px;padding:3px 7px;text-align:center;min-width:44px;border:1px solid #3a2810}
+.vm-bn{font-size:14px;font-weight:bold;color:#e8e0c8}
+.vm-bl{font-size:9px;color:#6a5840}
+.vm-warn{font-size:10px;color:#904000;font-weight:bold;padding:3px 8px;background:#f0e4a0;border-bottom:1px solid #d0c070;flex-shrink:0}
+.vm-list-inner{padding:4px 6px 5px}
+.vm-row{display:flex;align-items:center;gap:5px;background:#2a2010;border-radius:4px;padding:5px 7px;margin-bottom:3px;border:1px solid #3a2810}
+.vm-badge{padding:3px 7px;border-radius:3px;font-size:10px;font-weight:bold;white-space:nowrap;flex-shrink:0;min-width:54px;text-align:center}
+.vm-fi-wrap{flex:1;position:relative}
+.vm-fi{width:100%;font-size:10px;padding:3px 6px;background:#1a1208;border:1px solid #3a2810;border-radius:3px;color:#e8e0c8;outline:none}
+.vm-fi:focus{border-color:#c89010}
+.vm-sug{display:none;position:absolute;top:100%;left:0;right:0;z-index:200;background:#d4c898;border:1px solid #b0a078;border-radius:3px;max-height:70px;overflow-y:auto;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+.vm-sug-i{padding:2px 8px;cursor:pointer;font-size:10px;border-bottom:1px solid #b0a078}
+.vm-sug-i:hover{background:#c8bc8a}
+.vm-ts{background:#1a1208;border:1px solid #3a2810;border-radius:3px;padding:3px 5px;color:#e8e0c8;font-size:10px;outline:none;flex-shrink:0;width:76px}
+.vm-rm{background:none;border:none;color:#804040;cursor:pointer;font-size:11px;flex-shrink:0}
+.vm-add-row{padding:5px 7px 7px;display:flex;flex-wrap:wrap;gap:3px;background:#1e1a0e;border-top:1px solid #080604;flex-shrink:0}
+.vm-ab{padding:3px 8px;border-radius:3px;font-size:10px;font-weight:bold;cursor:pointer;border:1px solid transparent}
+/* colors */
+.tc-villager{background:#7a6240;color:#f0e8d8}.tc-baby{background:#7a3030;color:#f8e0e0}
+.tc-militia{background:#5a2020;color:#f8d8d8}.tc-builder{background:#203050;color:#d0e0f8}
+.tc-archer{background:#385020;color:#d8f0c8}.tc-fisher{background:#183848;color:#c8eef8}
+.tc-explorer{background:#484010;color:#f0e8a0}.tc-miner{background:#482e10;color:#f0d8a8}
+.tc-healer{background:#3a1850;color:#e8c8f8}.tc-wizard{background:#280638;color:#e8b8f8}
+.tc-farmer{background:#183818;color:#b8f0b8}
+.ab-villager{background:#7a6240;color:#f0e8d8;border-color:#5a4220}
+.ab-baby{background:#7a3030;color:#f8e0e0;border-color:#5a1010}
+.ab-militia{background:#5a2020;color:#f8d8d8;border-color:#3a0000}
+.ab-builder{background:#203050;color:#d0e0f8;border-color:#001030}
+.ab-archer{background:#385020;color:#d8f0c8;border-color:#183000}
+.ab-fisher{background:#183848;color:#c8eef8;border-color:#001828}
+.ab-explorer{background:#484010;color:#f0e8a0;border-color:#282000}
+.ab-miner{background:#482e10;color:#f0d8a8;border-color:#280e00}
+.ab-healer{background:#3a1850;color:#e8c8f8;border-color:#1a0030}
+.ab-wizard{background:#280638;color:#e8b8f8;border-color:#080018}
+.ab-farmer{background:#183818;color:#b8f0b8;border-color:#001800}
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,.15)}
+::-webkit-scrollbar-thumb{background:#7a9858;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#5a7838}
+
+.sbtn:hover{color:#f0c840 !important;transform:scale(1.2)}
+.qbtn:hover{background:#c89010;color:#1a1208;border-color:#a87008}
+.il{color:#3a5020;font-weight:bold;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
+.il:hover{color:#1a3000;background:rgba(200,144,16,.15);border-radius:2px}
+
+.cc-enemy-row{display:flex;align-items:center;gap:4px;background:#2a2010;border-radius:3px;padding:3px 5px;margin-bottom:3px;border:1px solid #3a2810}
+.cc-enemy-row label{font-size:9px;color:#7a6840;flex-shrink:0}
+.cc-enemy-row input{flex:1;min-width:0;font-size:10px;padding:2px 4px;background:#1a1208;border:1px solid #3a2810;border-radius:2px;color:#e8e0c8;outline:none}
+.cc-enemy-row input:focus{border-color:#c89010}
+.cc-enemy-rm{background:none;border:none;color:#905050;cursor:pointer;font-size:10px;padding:0 2px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="topbar">
+  <span class="logo">⚔ Stacklands</span>
+
+  <div style="display:flex;align-items:center;gap:2px">
+    <button class="btn" onclick="zoom(-1)">−</button>
+    <span class="zlbl" id="zlbl">100%</span>
+    <button class="btn" onclick="zoom(1)">+</button>
+  </div>
+  <button class="btn" onclick="exportSave()">💾 Export</button>
+  <button class="btn" onclick="document.getElementById('imp-f').click()">📂 Import</button>
+  <input type="file" id="imp-f" accept=".json" style="display:none" onchange="importSave(event)">
+  <span id="sv-ok" style="font-size:10px;color:#50882a;opacity:0;transition:opacity .3s">✓ saved</span>
+</div>
+<div class="tabs">
+  <button class="tab on" id="tab-btn-0" onclick="switchTab(0)">🎮 Active Game</button>
+  <button class="tab" id="tab-btn-1" onclick="switchTab(1)">📋 Priorities</button>
+  <button class="tab" id="tab-btn-2" onclick="switchTab(2)">⚔ Combat &amp; Crew</button>
+</div>
+
+<!-- TAB 0 -->
+<div class="pane on" id="pane-0">
+  <div style="flex-shrink:0">
+    <div class="moon-strip">
+      <span class="mlbl" style="font-size:11px;font-weight:bold;color:#e8e0c8">🌙 Moon</span>
+      <button class="mbtn" onclick="changeMoon(-1)">−</button>
+      <span class="moon-n" id="mn0">1</span>
+      <button class="mbtn" onclick="changeMoon(1)">+</button>
+      <span class="mevt mev-none" id="mev0"></span>
+    </div>
+    <div class="moon-ranges" id="mranges0"></div>
+  </div>
+  <div class="panel grow" id="p-tbl">
+    <div class="ph" style="gap:6px;flex-wrap:wrap">
+      <span onclick="togglePanel('tbl')" style="cursor:pointer">📋 Crafting Table</span>
+      <input type="text" id="srch" placeholder="Search items…" style="flex:1;min-width:80px;max-width:180px;font-size:.82em;padding:3px 8px;background:#2a2010;border:1px solid #4a3820;border-radius:3px;color:#e8e0c8;outline:none">
+      <button onclick="clearSearch()" style="background:none;border:none;color:#6a5840;cursor:pointer;font-size:11px;padding:0 2px">✕</button>
+      <span class="ph-r"><span id="tbl-cnt">0 items</span><span class="ph-arr open" id="tbl-arr" onclick="togglePanel('tbl')" style="cursor:pointer">▶</span></span>
+    </div>
+    <div class="cat-bar" id="cat-bar"></div>
+    <div class="pb" id="pb-tbl">
+      <div class="tbl-wrap">
+        <div class="tbl-card">
+          <table>
+            <thead><tr>
+              <th style="width:1.2em"></th>
+              <th style="width:1.3em">☆</th>
+              <th style="width:22%">Item</th>
+              <th style="width:32%">Ingredients</th>
+              <th style="width:16%">Category</th>
+              <th style="width:1.5em">❓</th>
+            </tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tbl-ft"><span id="tbl-ft">0 items</span><span>click to expand ▶</span></div>
+    </div>
+  </div>
+  <div class="rh" onmousedown="startResize(event,'p-tbl')"></div>
+  <div class="panel" id="p-cl" style="height:160px">
+    <div class="ph" onclick="togglePanel('cl')">
+      ⭐ My Craft List
+      <span class="ph-r"><span id="cl-cnt">0</span><span class="ph-arr open" id="cl-arr">▶</span></span>
+    </div>
+    <div class="pb" id="pb-cl">
+      <div id="cl-empty" class="cl-empty">Click ☆ on any item to add.</div>
+      <div id="cl-list" class="cl-inner"></div>
+      <div id="cl-totals"></div>
+    </div>
+  </div>
+  <div class="rh" onmousedown="startResize(event,'p-cl')"></div>
+  <div class="panel" id="p-chk" style="height:120px">
+    <div class="ph" onclick="togglePanel('chk')">
+      ✅ Checklist of Progress
+      <span class="ph-r"><span class="ph-arr open" id="chk-arr">▶</span></span>
+    </div>
+    <div style="flex-shrink:0;padding:4px 6px;background:#1e1a0e;border-bottom:1px solid #080604;position:relative">
+      <div style="display:flex;gap:3px">
+        <input type="text" class="chl-si" id="chk-si" placeholder="Search item to add…" oninput="chkSuggest()">
+        <button class="chl-ab" onclick="addChkItem()">+ Add</button>
+      </div>
+      <div id="chk-sug" class="chl-sug" style="position:absolute;left:6px;right:6px;z-index:100;display:none"></div>
+    </div>
+    <div class="pb" id="pb-chk">
+      <div class="chl-body"><div id="chk-list"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 1 -->
+<div class="pane" id="pane-1">
+  <div style="flex-shrink:0">
+    <div class="moon-strip">
+      <span style="font-size:11px;font-weight:bold;color:#e8e0c8">🌙 Moon</span>
+      <button class="mbtn" onclick="changeMoon(-1)">−</button>
+      <span class="moon-n" id="mn1">1</span>
+      <button class="mbtn" onclick="changeMoon(1)">+</button>
+      <span class="mevt mev-none" id="mev1"></span>
+    </div>
+    <div class="moon-ranges" id="mranges1"></div>
+  </div>
+  <div class="panel" id="p-wn" style="height:200px">
+    <div class="ph" onclick="togglePanel('wn')">
+      ❓ What Now?
+      <span class="ph-r"><span id="wn-cnt">0 items</span><span class="ph-arr open" id="wn-arr">▶</span></span>
+    </div>
+    <div class="wn-search-bar">
+      <input type="text" class="wn-si" id="wn-si" placeholder="Pesquisar carta…" oninput="wnSuggest()">
+      <div id="wn-sug" style="position:absolute;background:#d4c898;border:1px solid #b0a078;border-radius:3px;max-height:80px;overflow-y:auto;z-index:100;display:none;min-width:160px"></div>
+      <button class="wn-ab" onclick="addWn()">+ Add</button>
+    </div>
+    <div class="pb" id="pb-wn">
+      <div class="wn-list" id="wn-list"></div>
+    </div>
+  </div>
+  <div class="rh" onmousedown="startResize(event,'p-wn')"></div>
+  <div class="panel grow" id="p-sp">
+    <div class="ph" onclick="togglePanel('sp')">
+      ⚑ Strategic Priorities
+      <span class="ph-r"><span id="sp-cnt">0/74</span><span class="ph-arr open" id="sp-arr">▶</span></span>
+    </div>
+    <div class="sp-phase-bar" id="sp-ph"></div>
+    <div class="sp-cat-bar" id="sp-ct"></div>
+    <div class="pb" id="pb-sp">
+      <div class="sp-list" id="sp-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2 -->
+<div class="pane" id="pane-2">
+  <div class="panel" id="p-cbt" style="height:360px">
+    <div class="ph" onclick="togglePanel('cbt')">
+      ⚔ Combat Calculator
+      <span class="ph-r"><span class="ph-arr open" id="cbt-arr">▶</span></span>
+    </div>
+    <div class="pb" id="pb-cbt">
+      <div class="cc-body">
+        <div class="cc-cols">
+          <div class="cc-left">
+            <div class="cc-sec" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+              <span>Enemies in Combat</span>
+              <button class="btn" onclick="addCombatEnemy()" style="font-size:9px;padding:2px 6px">+ Add Enemy</button>
+            </div>
+            <div id="cc-enemies-list"></div>
+          </div>
+          <div class="cc-right">
+            <div class="cc-sec">Villager Gear</div>
+            <div style="font-size:9px;color:#7a6840;margin-bottom:2px">Head</div>
+            <select class="cc-sel" id="cc-hd" onchange="updateStats()"><option value="">— none —</option></select>
+            <div style="font-size:9px;color:#7a6840;margin-bottom:2px">Body</div>
+            <select class="cc-sel" id="cc-bd" onchange="updateStats()"><option value="">— none —</option></select>
+            <div style="font-size:9px;color:#7a6840;margin-bottom:2px">Hand</div>
+            <select class="cc-sel" id="cc-ha" onchange="updateStats()"><option value="">— none —</option></select>
+            <div class="cc-stats">
+              <div class="cc-stat">Your ATK: <strong id="s-atk">2</strong></div>
+              <div class="cc-stat">Your DEF: <strong id="s-def">0</strong></div>
+              <div class="cc-stat">Your HP: <strong id="s-hp">15</strong></div>
+            </div>
+          </div>
+        </div>
+        <button class="cc-go" onclick="calcCombat()">Calculate Combat</button>
+        <div id="cc-res" class="cc-res">
+          <div class="cc-banner">
+            <div class="res-title" id="cc-res-t"></div>
+            <div class="res-detail" id="cc-res-d"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="rh" onmousedown="startResize(event,'p-cbt')"></div>
+  <div class="panel grow" id="p-vm">
+    <div class="ph" onclick="togglePanel('vm')">
+      👥 Villager Manager
+      <span class="ph-r"><span class="ph-arr open" id="vm-arr">▶</span></span>
+    </div>
+    <div class="pb" id="pb-vm">
+      <div class="vm-sum" id="vm-sum"></div>
+      <div id="vm-warn"></div>
+      <div class="vm-list-inner" id="vm-list"></div>
+      <div class="vm-add-row" id="vm-addbtn-row"></div>
+    </div>
+  </div>
+</div>
+</div><!-- /app -->
+<script>
+const data=[
+  {name:"Berry Bush",cat:"Basic",ing:"Berry + Soil",desc:"Stack 1 Berry on 1 Soil. Grows a Berry Bush that keeps producing Berries. Free food — plant as many as possible."},
+  {name:"Brick",cat:"Basic",ing:"Stone ×3 + Villager",desc:"Stack 3 Stone on a Villager → 1 Brick. Essential for Smelter, Farm, Market, and most advanced buildings."},
+  {name:"Builder",cat:"Basic",ing:"Found in packs",desc:"Villager specialized for construction. Required for Road Builder (Brick ×4 + Builder). Works like a regular Villager for most tasks."},
+  {name:"Archer",cat:"Basic",ing:"Villager + Bow",desc:"Stack Bow on Villager → Archer. Ranged combat. Attacks before enemies reach melee. Equip with Quiver for bonus."},
+  {name:"Coin Chest",cat:"Basic",ing:"Wood ×2 + Coin",desc:"Stores up to 100 Coins in one card slot. Build one as soon as Coins pile up."},
+  {name:"Coin Pouch",cat:"Basic",ing:"Wood ×2 + Coin",desc:"Worth more when sold than raw Coin. Good early money."},
+  {name:"House",cat:"Basic",ing:"Wood ×2 + Stone + Villager",desc:"Required to grow Babies into Villagers and to create Offspring."},
+  {name:"Offspring",cat:"Basic",ing:"House + Villager ×2",desc:"Stack 2 Villagers on a House → 1 Baby. Baby grows into Villager. Needs food each Moon."},
+  {name:"Plank",cat:"Basic",ing:"Wood ×3 + Villager",desc:"Used in almost every building and weapon. Build a Sawmill to automate."},
+  {name:"Stick",cat:"Basic",ing:"Wood + Villager",desc:"Used to craft:\n<ul><li>Campfire (+ Flint)</li><li>Spear (+ Wood + Stick)</li><li>Sword (+ Iron Bar)</li><li>Axe (+ Iron Bar + Wood)</li><li>Bow (+ Rope + Plank)</li><li>Wooden Shield (+ Plank)</li></ul>"},
+  {name:"Animal Pen",cat:"Building",ing:"Plank ×2 + Wood ×2 + Iron Bar + Villager",desc:"Holds up to 5 animals. Passively produces:\n<ul><li>Chicken → Egg</li><li>Cow → Milk</li><li>Sheep → Wool</li><li>Any animal → Poop (for Composter)</li></ul>"},
+  {name:"Aquarium",cat:"Building",ing:"Glass ×2 + Iron Bar + Villager",desc:"Holds up to 5 Fish. Keeps fish from expiring. Fill with a Fisher (Villager + Fishing Rod) near Island water."},
+  {name:"Breeding Pen",cat:"Building",ing:"Plank ×2 + Wood + Villager",desc:"Place 2 of the same animal → they produce offspring. Scales up Animal Pen supply."},
+  {name:"Brickyard",cat:"Building",ing:"Brick + Iron Bar + Wood + Villager",desc:"Stack Stone → Brick, faster than a Villager. Frees Villagers for other tasks."},
+  {name:"Butchery",cat:"Building",ing:"Plank + Stone + Iron Bar + Villager",desc:"Stack an animal → produces Raw Meat and Bone automatically."},
+  {name:"Composter",cat:"Building",ing:"Poop ×2 + Plank + Brick + Villager",desc:"Stack any 5 food cards → 1 Soil after 60s. Essential when natural Soil runs out. Pair with Animal Pen for Poop supply."},
+  {name:"Distillery",cat:"Building",ing:"Stove + Iron Bar + Plank + Villager",desc:"Stack Cane Sugar + Bottle of Water → Bottle of Rum. Warning: Rum makes Villagers drunk temporarily."},
+  {name:"Dustbin",cat:"Building",ing:"Plank + Stone + Villager",desc:"Stack any card → permanently deletes it. Useful for excess Poop, Stone, or food."},
+  {name:"Farm",cat:"Building",ing:"Soil + Brick ×2 + Plank ×2 + Villager",desc:"Stack crop card → grows 2 food, faster than Garden. Crops: Berry, Apple, Carrot, Potato, Onion, Mushroom, Banana, Cotton."},
+  {name:"Fish Trap",cat:"Building",ing:"Fishing Spot + Stone + Rope",desc:"Passively catches Raw Fish without a Fisher. Leave near Island water."},
+  {name:"Garden",cat:"Building",ing:"Soil + Stone ×2 + Wood ×2 + Villager",desc:"Stack crop card → grows 1 food. Cheaper than Farm. Build early — replace with Farm later."},
+  {name:"Gold Mine",cat:"Building",ing:"Flint + Gold Ore + Wood + Stone + Villager",desc:"Produces Gold Ore automatically — unlimited. Requires one Island Gold Ore to build."},
+  {name:"Greenhouse",cat:"Building",ing:"Iron Bar ×2 + Glass ×2 + Soil + Villager",desc:"Stack any crop → grows AND auto-replants. Never need Soil again. Best food building."},
+  {name:"Iron Mine",cat:"Building",ing:"Flint ×2 + Wood + Stone + Villager",desc:"Produces Iron Ore automatically — unlimited. Top priority mid-game."},
+  {name:"Lumber Camp",cat:"Building",ing:"Wood ×3 + Stone + Villager",desc:"Produces Wood automatically — unlimited. Build first of all production buildings."},
+  {name:"Market",cat:"Building",ing:"Brick + Plank + Coin ×3 + Villager",desc:"Stack any card → sells for more Coins. Monetize excess Stone, Wood, food, or Rum."},
+  {name:"Mess Hall",cat:"Building",ing:"Plank + Iron Bar + Campfire",desc:"Villagers eat here first when Moon ends. Prevents food waste with many Villagers."},
+  {name:"Quarry",cat:"Building",ing:"Stone ×3 + Wood + Villager",desc:"Produces Stone automatically — unlimited. Build alongside Lumber Camp."},
+  {name:"Resource Chest",cat:"Building",ing:"Plank ×2 + Iron Bar + Flint",desc:"Stores up to 100 of a single resource type. Use with Crane to auto-fill."},
+  {name:"Resource Magnet",cat:"Building",ing:"Gold Bar + Magic Dust + Villager",desc:"Stack a resource on it → auto-attracts all newly produced cards of that type. Pair with Crane to pipe into Smelter."},
+  {name:"Road Builder",cat:"Building",ing:"Brick ×4 + Builder",desc:"Unlocks road view to draw automated card transport connections. Required before Crossroads or Filter Crossroads."},
+  {name:"Sawmill",cat:"Building",ing:"Plank + Wood + Stone + Iron Bar + Villager",desc:"Stack Wood → Plank, faster than a Villager. Great for bulk Plank production."},
+  {name:"Shed",cat:"Building",ing:"Wood + Stone + Stick + Villager",desc:"Passive — +4 Card Cap. Build 2–3 early. Replace with Warehouse later."},
+  {name:"Smelter",cat:"Building",ing:"Flint ×2 + Brick ×2 + Plank + Villager",desc:"Stack materials + Wood to smelt:\n<ul><li>Iron Ore + Wood → Iron Bar (~10s)</li><li>Gold Ore + Wood → Gold Bar</li><li>Sand + Wood → Glass (Island)</li><li>Gold Bar ×3 + Glass ×3 → Sacred Key</li></ul>Top priority building."},
+  {name:"Smithy",cat:"Building",ing:"Iron Bar ×2 + Brick ×2 + Villager",desc:"Stack materials to craft:\n<ul><li>Chainmail Armor (Iron Bar ×2)</li><li>Iron Shield (Iron Bar + Plank)</li><li>Boomerang (Plank ×3)</li><li>Golden Chestplate (Gold Bar ×2)</li><li>Blunderbuss (Gold Bar + Iron Bar + Plank + Flint)</li><li>Forest Amulet (Gold Bar ×2 + Magic Dust + Wood)</li><li>Mountain Amulet (Gold Bar ×2 + Magic Dust + Stone)</li></ul>Required for Combat Lv 5+."},
+  {name:"Stable Portal",cat:"Building",ing:"Brick ×2 + Magic Dust ×2 + Villager",desc:"Permanent portal to the Dark Forest. Push up to 7 cards through at once."},
+  {name:"Stove",cat:"Building",ing:"Brick + Iron Bar + Flint + Villager",desc:"Cooks food faster than Campfire. Same recipes. Also required to build Distillery."},
+  {name:"Crane",cat:"Building",ing:"Iron Bar + Plank + Stick + Magic Dust",desc:"Takes cards from one side, delivers to other every 10s. Pair with Resource Magnet → auto-feeds Smelter. Shift+click to change direction."},
+  {name:"Crossroads",cat:"Building",ing:"Brick + Flint + Villager",desc:"Requires Road Builder. Road junction — splits output in multiple directions. Does NOT filter by type."},
+  {name:"Filter Crossroads",cat:"Building",ing:"Brick ×2 + Flint + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Smart junction — routes cards by type to specific outputs. Iron Mine → sends Iron Ore to Smelter, Stone to Brickyard, Coin to Coin Chest automatically."},
+  {name:"Warehouse",cat:"Building",ing:"Stone + Iron Bar + Villager",desc:"Passive — +14 Card Cap. Far more efficient than Sheds."},
+  {name:"University",cat:"Building",ing:"Plank ×2 + Brick ×2 + Gold Bar + Villager",desc:"Teaches a random undiscovered recipe (Idea) every Moon. Use if missing a recipe and have no Old Tomes."},
+  {name:"Apartment",cat:"Building",ing:"Cement ×2 + Plank ×2 + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Worker housing. Workers need Shack or Apartment each Moon."},
+  {name:"Barracks",cat:"Building",ing:"Iron Bar ×2 + Brick ×2 + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Produces Soldiers — S2000 combat units."},
+  {name:"Burner Generator",cat:"Building",ing:"Iron Bar ×2 + Coal + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Produces Energy by consuming Coal. Powers most S2000 buildings."},
+  {name:"City Hall",cat:"Building",ing:"Cement ×3 + Iron Bar ×2 + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Increases Card Cap significantly. Required for advanced S2000 structures."},
+  {name:"Copper Mine",cat:"Building",ing:"Copper Deposit + Factory Parts + Worker <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Produces Copper Ore when powered with Energy."},
+  {name:"Electricity Pylon",cat:"Building",ing:"Iron Bar ×2 + Copper Bar + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Connects energy generators to consumers via road network."},
+  {name:"Energy Combiner",cat:"Building",ing:"Copper Bar ×2 + Iron Bar + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Combines multiple energy sources into one output."},
+  {name:"Export Center",cat:"Building",ing:"Plank ×3 + Iron Bar ×2 + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Sell resources for Dollars. Main income source in industrial era."},
+  {name:"Factory",cat:"Building",ing:"Cement ×2 + Iron Bar ×3 + Factory Parts + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Core production building. Requires Energy. Produces Electric Motors and advanced resources."},
+  {name:"Farmland",cat:"Building",ing:"Soil ×2 + Brick + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Produces Grain for Bread 2000 — the main S2000 food."},
+  {name:"Shack",cat:"Building",ing:"Wood ×2 + Stick + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Basic worker housing. Build one per Worker minimum."},
+  {name:"Bottle of Rum",cat:"Cooking",ing:"Distillery + Cane Sugar + Bottle of Water",desc:"Feeds Villagers but makes them Drunk temporarily. High sell value at Market."},
+  {name:"Campfire",cat:"Cooking",ing:"Stick + Flint",desc:"Cooks:\n<ul><li>Raw Meat → Cooked Meat</li><li>Egg ×2 → Omelette</li><li>Egg + Potato → Frittata</li><li>Potato + Raw Meat + Onion + Carrot → Stew</li><li>Crab Meat + Raw Fish + Chili Pepper → Seafood Stew</li></ul>Replace with Stove for faster cooking."},
+  {name:"Ceviche",cat:"Cooking",ing:"Lime + Raw Fish",desc:"No cooking needed. Both from Island."},
+  {name:"Chicken",cat:"Cooking",ing:"Chicken card + Egg",desc:"Stack Chicken card + Egg → Cooked Chicken. Eggs from Animal Pen."},
+  {name:"Cooked Crab",cat:"Cooking",ing:"Campfire + Crab",desc:"Stack Crab on Campfire → Cooked Crab. Crabs from Island."},
+  {name:"Cooked Meat",cat:"Cooking",ing:"Campfire + Raw Meat",desc:"Feeds 1 Villager. Cook before Moon ends."},
+  {name:"Frittata",cat:"Cooking",ing:"Campfire + Egg + Potato",desc:"Feeds 1 Villager."},
+  {name:"Fruit Salad",cat:"Cooking",ing:"Apple + Berry",desc:"No cooking needed. Feeds 1 Villager."},
+  {name:"Milkshake",cat:"Cooking",ing:"Milk + Berry",desc:"Feeds 1 Villager."},
+  {name:"Omelette",cat:"Cooking",ing:"Campfire + Egg ×2",desc:"Feeds 1 Villager. Also used for Tamago Sushi."},
+  {name:"Seafood Stew",cat:"Cooking",ing:"Campfire + Raw Crab Meat + Raw Fish + Chili Pepper",desc:"High-value food. All 3 ingredients from Island."},
+  {name:"Stew",cat:"Cooking",ing:"Campfire + Potato + Raw Meat + Onion + Carrot",desc:"One of the best food cards."},
+  {name:"Sushi",cat:"Cooking",ing:"Raw Fish + Seaweed",desc:"No cooking needed. Both from Island."},
+  {name:"Tamago Sushi",cat:"Cooking",ing:"Omelette + Seaweed",desc:"Make Omelette first (2 Eggs + Campfire), combine with Island Seaweed."},
+  {name:"Axe",cat:"Military",ing:"Iron Bar + Stick + Wood",desc:"Combat Lv 4."},
+  {name:"Bear Claw",cat:"Military",ing:"Drop: Bear",desc:"Drops from Bears. High damage melee weapon."},
+  {name:"Blowpipe",cat:"Military",ing:"Drop: Frog Man",desc:"Drops from Frog Men in Dark Forest. Ranged, poison effect."},
+  {name:"Blunderbuss",cat:"Military",ing:"Gold Bar + Iron Bar + Plank + Flint + Smithy",desc:"Combat Lv 9. Top damage weapon. Needs Island Gold."},
+  {name:"Bone Spear",cat:"Military",ing:"Spear + Bone ×2",desc:"Combat Lv 5."},
+  {name:"Bone Staff",cat:"Military",ing:"Magic Staff + Bone + Gold Bar + Smithy",desc:"Combat Lv 4 with special abilities. Magic Staff from Dark Forest."},
+  {name:"Boomerang",cat:"Military",ing:"Plank ×3 + Smithy",desc:"Combat Lv 5. Only needs Planks — easy early Smithy weapon."},
+  {name:"Bow",cat:"Military",ing:"Rope + Plank + Wood",desc:"Combat Lv 4. No Smithy required."},
+  {name:"Broken Bottle",cat:"Military",ing:"Empty Bottle + Stone",desc:"Combat Lv 8! Empty Bottle from used Bottle of Water or Rum."},
+  {name:"Chainmail Armor",cat:"Military",ing:"Iron Bar ×2 + Smithy",desc:"Combat Lv 7. Reduces damage taken significantly."},
+  {name:"Club",cat:"Military",ing:"Wood ×2 + Villager",desc:"Simple early blunt weapon."},
+  {name:"Crab Scale Armor",cat:"Military",ing:"Drop: Momma Crab (Island boss)",desc:"Drops from Momma Crab boss. Heavy body armor."},
+  {name:"Crossbow",cat:"Military",ing:"Plank ×2 + Rope + Villager",desc:"Ranged, higher damage than Bow. Needs Island Rope."},
+  {name:"Dark Amulet",cat:"Military",ing:"Drop: Dark Elf (Dark Forest)",desc:"Drops from Dark Elves. Magic bonuses."},
+  {name:"Demon Sword",cat:"Military",ing:"Drop: Demon / Demon Lord",desc:"Drops from Demons. Only 1 on board at a time. Best melee weapon."},
+  {name:"Fire Cloak",cat:"Military",ing:"Drop: Demon / Demon Lord",desc:"Drops from Demons. Body armor with fire damage effect."},
+  {name:"Forest Amulet",cat:"Military",ing:"Gold Bar ×2 + Magic Dust + Wood + Smithy",desc:"Combat Lv 6 + lifesteal."},
+  {name:"Frog Helmet",cat:"Military",ing:"Drop: Frog Man",desc:"Drops from Frog Men. HP and special effect."},
+  {name:"Goblin Hat",cat:"Military",ing:"Drop: Goblin",desc:"Drops from Goblins. Combat bonuses for fast attackers."},
+  {name:"Golden Chestplate",cat:"Military",ing:"Gold Bar ×2 + Smithy",desc:"Combat Lv 9 + stun on hit. Top-tier armor."},
+  {name:"Hammer",cat:"Military",ing:"Iron Bar ×2 + Plank + Villager",desc:"High stun chance. Pair with Pirate Hat for stun-lock build."},
+  {name:"Helmet",cat:"Military",ing:"Drop: Skeleton / Dark Elf / Elf Archer",desc:"Basic head defense."},
+  {name:"Horned Helmet",cat:"Military",ing:"Drop: Demon Lord (unique)",desc:"Unique drop from Demon Lord. Best head item in the game."},
+  {name:"Iron Shield",cat:"Military",ing:"Iron Bar + Plank + Smithy",desc:"Combat Lv 7. Good defensive item."},
+  {name:"Jester's Hat",cat:"Military",ing:"Drop: Jester (Dark Forest)",desc:"Unique randomized effect each fight."},
+  {name:"Kraken Tooth Axe",cat:"Military",ing:"Drop: Kraken (Island)",desc:"Drops from the Kraken. Powerful axe."},
+  {name:"Leather Tunic",cat:"Military",ing:"Drop: Cow (rare)",desc:"Drops rarely from Cows. Basic body armor before Chainmail."},
+  {name:"Magic Blade",cat:"Military",ing:"Drop: Dark Forest enemies",desc:"Magic-type weapon, effective vs Demons."},
+  {name:"Magic Broom",cat:"Military",ing:"Drop: Wicked Witch (unique)",desc:"Unique drop from Wicked Witch boss. Only 1 per run."},
+  {name:"Magic Ring",cat:"Military",ing:"Drop: Dark Forest enemies",desc:"Magic combat bonuses."},
+  {name:"Magic Staff",cat:"Military",ing:"Drop: Dark Forest / found in packs",desc:"Turns Villager into Wizard (magic attacker). Used to craft Bone Staff (+ Bone + Gold Bar + Smithy)."},
+  {name:"Magic Tome",cat:"Military",ing:"Drop: Dark Forest enemies",desc:"Villager heals lowest-HP ally on each attack instead of dealing damage. Dedicated healer role."},
+  {name:"Magic Wand",cat:"Military",ing:"Drop: Dark Forest enemies",desc:"Basic magic weapon."},
+  {name:"Morning Star",cat:"Military",ing:"Drop: Skeleton",desc:"Good damage. Drops from Skeletons."},
+  {name:"Mountain Amulet",cat:"Military",ing:"Gold Bar ×2 + Magic Dust + Stone + Smithy",desc:"Combat Lv 4 + defense bonus."},
+  {name:"Pickaxe",cat:"Military",ing:"Iron Bar + Stick + Villager",desc:"Turns Villager into Miner — gathers Stone and Iron Ore faster. Production tool, not combat."},
+  {name:"Pirate Hat",cat:"Military",ing:"Drop: Pirate (Island)",desc:"Stun chance on hit. Combine with Hammer for stun-lock build."},
+  {name:"Pirate Sabre",cat:"Military",ing:"Drop: Pirate (Island)",desc:"Fast attack speed melee weapon."},
+  {name:"Plague Mask",cat:"Military",ing:"Drop: Dark Forest enemies",desc:"Defense and resistance against Dark Forest enemies."},
+  {name:"Quiver",cat:"Military",ing:"Drop: Goblin Archer",desc:"Body slot for archers — increases attack speed for Bow/Crossbow/Blowpipe users."},
+  {name:"Rabbit Hat",cat:"Military",ing:"Drop: Rabbit (rare)",desc:"+2 Attack Speed but -5 Max HP. Glass cannon build."},
+  {name:"Rat Crown",cat:"Military",ing:"Drop: Giant Rat",desc:"Drops from Giant Rats. Head slot with unique bonuses."},
+  {name:"Slingshot",cat:"Military",ing:"Stick + Rope + Villager",desc:"Early ranged weapon available before Island Cotton."},
+  {name:"Spear",cat:"Military",ing:"Wood + Stick ×2",desc:"Combat Lv 3. Cheapest weapon. Build immediately to defend against Rats and Wolves."},
+  {name:"Spiked Plank",cat:"Military",ing:"Plank + Bone + Villager",desc:"Early melee option with bone effect."},
+  {name:"Staff of Fear",cat:"Military",ing:"Drop: Orc Wizard (Dark Forest)",desc:"Fear/stun effect on enemies. Great crowd control."},
+  {name:"Sword",cat:"Military",ing:"Iron Bar + Stick ×2",desc:"Combat Lv 4. First reliable weapon. Craft as soon as you have Iron Bars."},
+  {name:"Tiger Fur Coat",cat:"Military",ing:"Drop: Tiger (Island)",desc:"Body armor with attack speed bonus."},
+  {name:"Wizard Robe",cat:"Military",ing:"Fabric + Robe + Smithy",desc:"Combat Lv 3. Robe from Catacombs; Fabric from Island Cotton."},
+  {name:"Wolf Head",cat:"Military",ing:"Drop: Wolf (40%)",desc:"Head slot. Drops from Wolves at 40% chance. Good mid-game head equipment."},
+  {name:"Wooden Shield",cat:"Military",ing:"Plank + Stick",desc:"Combat Lv 3. Cheapest shield. No Smithy needed."},
+  {name:"Cement",cat:"Resource",ing:"Sand ×2 + Stone + Villager <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Required for Apartment, City Hall, and other industrial buildings."},
+  {name:"Copper Bar",cat:"Resource",ing:"Smelter + Copper Ore + Wood <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Used for Electricity Pylons and Electric Motor."},
+  {name:"Electric Motor",cat:"Resource",ing:"Factory + Copper Bar ×2 + Iron Bar <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. High-tech resource from Factory. Required for advanced S2000 buildings."},
+  {name:"Factory Parts",cat:"Resource",ing:"Found in S2000 packs <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Industrial component needed to build Factories."},
+  {name:"Gold Bar",cat:"Resource",ing:"Smelter + Gold Ore + Wood",desc:"Stack 1 Gold Ore + 1 Wood on Smelter → 1 Gold Bar. Used for:\n<ul><li>Sacred Key (×3 + Glass ×3)</li><li>Cathedral (×5)</li><li>Golden Chestplate, Amulets, Blunderbuss</li></ul>"},
+  {name:"Iron Bar",cat:"Resource",ing:"Smelter + Iron Ore + Wood",desc:"Most important resource (~10s smelt). Needed for almost every building and weapon. Build Iron Mine + Smelter ASAP."},
+  {name:"Cathedral",cat:"Important",ing:"Gold Bar ×5 + Glass ×5 + Brick ×5 + Plank ×5 + Villager ×5",desc:"Stack all → Cathedral. Place a Relic on it to activate. Both Gold and Glass require the Island."},
+  {name:"Sacred Key",cat:"Important",ing:"Smelter + Gold Bar ×3 + Glass ×3",desc:"Stack 3 Gold Bars + 3 Glass on Smelter → Sacred Key. Opens Sacred Chest → Island Relic."},
+  {name:"Temple",cat:"Important",ing:"Plank ×5 + Brick ×5 + Iron Bar ×3 + Villager ×3",desc:"Place Mysterious Artifact on it to trigger main quest and boss fight."},
+  {name:"Catacombs",cat:"Location",ing:"Strange Portal (random Moon event)",desc:"Explore with Villager. Drops:\n<ul><li>Magic Dust (critical for Amulets!)</li><li>Robe (for Wizard Robe)</li><li>Skull</li></ul>Disappears after 5 explorations — explore all 5!"},
+  {name:"Cave",cat:"Location",ing:"Found randomly",desc:"Explore with Villager. Drops Flint, Stone, Iron Ore, Bat. Disappears after 5 explorations — use all!"},
+  {name:"Cotton Plant",cat:"Location",ing:"Island packs",desc:"Stack Cotton Plant + Villager → Cotton. Cotton needed for Rope (×2) and Fabric (×4)."},
+  {name:"Fishing Spot",cat:"Location",ing:"Island / Ocean area",desc:"Send a Fisher (Villager + Fishing Rod) → produces Raw Fish, Seaweed, and sometimes Crabs."},
+  {name:"Forest",cat:"Location",ing:"Found in packs",desc:"Explore (60s). Drops Wood, Stick, Berry, Mushroom, Rabbit, Wolf. Infinite."},
+  {name:"Graveyard",cat:"Location",ing:"Corpse ×2",desc:"Stack 2 Corpses → Graveyard. Explore for Bone, Soil, Skull. Infinite. Good Soil source."},
+  {name:"Jungle",cat:"Location",ing:"Island packs",desc:"Explore → Banana, Cane Sugar (for Rum), Cotton, Monkey, Tiger."},
+  {name:"Mountain",cat:"Location",ing:"Found in packs",desc:"Explore (60s). Drops Stone, Flint, Iron Ore, Bear (+ Bear Claw), Bone. Infinite."},
+  {name:"Old Village",cat:"Location",ing:"Found in packs",desc:"Explore (60s). Drops Coin, Plank, Brick, Iron Bar, Villager (rare!). Infinite."},
+  {name:"Plains",cat:"Location",ing:"Found in packs",desc:"Explore (60s). Drops Chicken, Cow, Rat, Wolf, Onion, Carrot, Milk, Soil. Best animal source. Infinite."},
+  {name:"Spring",cat:"Location",ing:"Island packs",desc:"Stack Empty Bottle on Spring → Bottle of Water. Required for Distillery → Rum."},
+  {name:"Baby",cat:"Special",ing:"Offspring (House + Villager ×2)",desc:"Grows into a Villager after a short time. Needs food each Moon."},
+  {name:"Barrel",cat:"Special",ing:"Cursed Worlds DLC only",desc:"⚠️ Cursed Worlds DLC. Transforms food: Milk → Cheese, Wheat ×2 → Beer."},
+  {name:"Corpse",cat:"Special",ing:"Villager dies (starvation or combat)",desc:"Don't waste it! Stack 2 Corpses → Graveyard (explore for Bone, Soil, Skull)."},
+  {name:"Dog",cat:"Special",ing:"Wolf + Bone",desc:"Stack Bone on Wolf → Dog. Explores Locations in 120s. Doesn't need food."},
+  {name:"Empty Bottle",cat:"Special",ing:"Left after using Bottle of Water or Rum",desc:"Don't throw away!\n<ul><li>Stack + Stone → Broken Bottle (Combat Lv 8!)</li><li>Stack on Spring → Bottle of Water for Distillery</li></ul>"},
+  {name:"Explorer",cat:"Special",ing:"Villager + Map",desc:"Stack Map on Villager → Explorer. Explores in 30s instead of 60s — 2× faster."},
+  {name:"Fishing Rod",cat:"Special",ing:"Stick + Rope",desc:"Stack on Villager → Fisher. Fishers catch Raw Fish at Island Fishing Spots."},
+  {name:"Goblet",cat:"Special",ing:"Found in packs or from trader",desc:"⚠️ Place on Temple → STARTS the final boss fight IMMEDIATELY. Equip ALL Villagers with best gear first!"},
+  {name:"Island Relic",cat:"Special",ing:"Sacred Chest + Sacred Key",desc:"Stack Sacred Key on Sacred Chest → Island Relic. Place on Cathedral to progress endgame."},
+  {name:"Key",cat:"Special",ing:"Humble Beginnings pack / Skeleton / Slime drop",desc:"Opens Treasure Chest → random loot. Keys from Skeleton drops, Slime drops, or Humble Beginnings pack."},
+  {name:"Map",cat:"Special",ing:"Found in packs",desc:"Stack on Villager → Explorer (2× faster location exploration)."},
+  {name:"Old Tome",cat:"Special",ing:"Old Village exploration",desc:"Stack on Villager → unlocks any random undiscovered recipe. Use when missing a recipe."},
+  {name:"Rowboat",cat:"Special",ing:"Plank ×3 + Wood ×2 + Villager",desc:"First way to reach the Island. Carries limited cards."},
+  {name:"Sacred Chest",cat:"Special",ing:"Treasure Map + Villager",desc:"Stack Treasure Map + Villager → Sacred Chest. Open with Sacred Key → Island Relic. Treasure Map from Cave (5th exploration)."},
+  {name:"Sail",cat:"Special",ing:"Rope + Fabric + Villager",desc:"Required to build Sloop. Rope from Cotton ×2; Fabric from Cotton ×4."},
+  {name:"Sloop",cat:"Special",ing:"Plank ×5 + Wood ×3 + Sail + Villager",desc:"Larger Island transport (10 cards). Build after Rowboat."},
+  {name:"Strange Portal",cat:"Special",ing:"Random event at Moon end",desc:"Spawns at Moon end:\n<ul><li>Sends enemies through — have armed Villager ready</li><li>Spawns Catacombs — explore all 5 times for Magic Dust!</li></ul>"},
+  {name:"Travelling Cart",cat:"Special",ing:"Random event (guaranteed Moon 20)",desc:"Stack Coins quickly to buy — it leaves fast! Can sell rare gear, resources, Villagers."},
+  {name:"Treasure Chest",cat:"Special",ing:"Appears randomly on the board",desc:"Stack a Key on it → random loot. Use your Key as soon as you have one."},
+  {name:"Treasure Map",cat:"Special",ing:"Cave (5th exploration)",desc:"5th Cave exploration drop. Stack + Villager → Sacred Chest → open with Sacred Key → Island Relic."},
+  {name:"Worker",cat:"Special",ing:"Barracks or S2000 packs <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Equivalent of Villager in industrial era. Needs housing and food each Moon."},
+  {name:"Bear",cat:"Enemy",ing:"Mountain / packs",desc:"Drops: Raw Meat ×2, Bone, Bear Claw (weapon). Needs weapon-equipped Villager."},
+  {name:"Crab",cat:"Enemy",ing:"Island",desc:"Drops: Raw Crab Meat. Also spawns Momma Crab (boss) in later Island packs."},
+  {name:"Dark Elf",cat:"Enemy",ing:"Dark Forest",desc:"Drops: Dark Amulet, Magic Blade. Ranged magic attacker."},
+  {name:"Demon",cat:"Enemy",ing:"Dark Forest",desc:"Drops: Demon Sword (unique — only 1 on board), Fire Cloak. Weak to magic."},
+  {name:"Demon Lord",cat:"Enemy",ing:"Spawns when Goblet placed on Temple",desc:"FINAL BOSS. Drops: Horned Helmet (unique), Demon Sword, Fire Cloak. Equip everyone first! Weak to magic."},
+  {name:"Elf Archer",cat:"Enemy",ing:"Dark Forest",desc:"Drops: Helmet, Quiver. Ranged — close distance quickly."},
+  {name:"Enchanted Shroom",cat:"Enemy",ing:"Dark Forest / late packs",desc:"Magic enemy. Drops Magic Dust. Magic attacks effective."},
+  {name:"Ent",cat:"Enemy",ing:"Dark Forest / late packs",desc:"High HP, slow. Drops Wood and rare items. Bring multiple Villagers."},
+  {name:"Feral Cat",cat:"Enemy",ing:"Late packs",desc:"Fast attacker. Drops Raw Meat."},
+  {name:"Frog Man",cat:"Enemy",ing:"Dark Forest",desc:"Drops: Goop, Frog Helmet, Blowpipe. Poison attacker."},
+  {name:"Giant Rat",cat:"Enemy",ing:"Packs / Strange Portal",desc:"Drops: Rat Crown, Poop, Coin."},
+  {name:"Goblin",cat:"Enemy",ing:"Packs / Strange Portal",desc:"Drops: Coin, Magic Dust (important!), Map (rare), Goblin Hat. Always have an armed Villager ready."},
+  {name:"Goblin Archer",cat:"Enemy",ing:"Packs / Strange Portal",desc:"Drops: Quiver, Coin, Magic Dust. Ranged."},
+  {name:"Goblin Shaman",cat:"Enemy",ing:"Packs / Strange Portal",desc:"Drops: Coin, Magic Dust. Can buff other enemies — priority target."},
+  {name:"Kraken",cat:"Enemy",ing:"Island ocean",desc:"Drops: Kraken Tooth Axe. Very powerful sea boss."},
+  {name:"Mimic",cat:"Enemy",ing:"Hidden in resource cards / packs",desc:"Disguises as resource. Attacks when touched. Always be combat-ready in later moons."},
+  {name:"Momma Crab",cat:"Enemy",ing:"Island boss",desc:"Drops: Crab Scale Armor. Much tougher than regular Crab."},
+  {name:"Monkey",cat:"Enemy",ing:"Jungle (Island)",desc:"Can steal cards from your board! Kill quickly."},
+  {name:"Orc Wizard",cat:"Enemy",ing:"Dark Forest",desc:"Drops: Staff of Fear. Casts fear — priority target."},
+  {name:"Pirate",cat:"Enemy",ing:"Island",desc:"Drops: Pirate Hat, Pirate Sabre, Coin. Medium difficulty."},
+  {name:"Rabbit",cat:"Enemy",ing:"Packs / Forest / Plains",desc:"Drops: Raw Meat, Poop, Rabbit Hat (rare — glass cannon)."},
+  {name:"Rat",cat:"Enemy",ing:"Packs / Plains",desc:"Weakest enemy. Drops: Poop, Coin."},
+  {name:"Seagull",cat:"Enemy",ing:"Island packs",desc:"Can grab and carry away cards! Kill quickly."},
+  {name:"Skeleton",cat:"Enemy",ing:"Packs / Mountain / Strange Portal",desc:"Drops: Bone, Skull, Helmet, Morning Star, Skull Helmet (rare — +5 HP!). Farm for Skull Helmets."},
+  {name:"Slime",cat:"Enemy",ing:"Packs / Strange Portal",desc:"Splits when hit. Drops: Goop. Focus and kill each quickly."},
+  {name:"Snake",cat:"Enemy",ing:"Island",desc:"Drops: Goop. Poison attacker."},
+  {name:"Tiger",cat:"Enemy",ing:"Jungle (Island)",desc:"Drops: Tiger Fur Coat. Fast and hard-hitting."},
+  {name:"Wicked Witch",cat:"Enemy",ing:"Specific event (unique)",desc:"Boss. Drops: Magic Broom (unique — only 1 per run). Heals herself mid-fight. Bring Magic Tome healer."},
+  {name:"Wolf",cat:"Enemy",ing:"Packs / Forest / Plains",desc:"Drops: Raw Meat, Bone, Wolf Head (40%). Stack Bone on Wolf → Dog companion."},
+  {name:"Apple",cat:"Raw",ing:"Apple Tree / Garden / Farm",desc:"Eaten directly. Used in Fruit Salad (+ Berry)."},
+  {name:"Banana",cat:"Raw",ing:"Jungle / Farm",desc:"Island food. Eaten directly."},
+  {name:"Berry",cat:"Raw",ing:"Packs / Berry Bush / Garden / Farm",desc:"Eaten directly. Used in Milkshake and Fruit Salad."},
+  {name:"Bone",cat:"Raw",ing:"Enemies / Graveyard / Mountain",desc:"From Wolves, Bears, Skeletons, Graveyard, Mountain. Used in Bone Spear, Bone Staff, and to make Dog."},
+  {name:"Bottle of Water",cat:"Raw",ing:"Spring + Empty Bottle",desc:"Stack Empty Bottle on Spring → Bottle of Water. Used in Distillery + Cane Sugar → Rum."},
+  {name:"Cane Sugar",cat:"Raw",ing:"Jungle / Cane Sugar Plant",desc:"From Jungle or Island plant. Used in Distillery + Bottle of Water → Rum."},
+  {name:"Carrot",cat:"Raw",ing:"Plains / Garden / Farm",desc:"Used in Stew."},
+  {name:"Charcoal",cat:"Raw",ing:"Wood ×2 + Campfire + Villager",desc:"Used in S2000 Burner Generator. Also good sell item."},
+  {name:"Chili Pepper",cat:"Raw",ing:"Island packs",desc:"Used in Seafood Stew."},
+  {name:"Cod",cat:"Raw",ing:"Fishing Spot (Fisher + Rod)",desc:"Fish from Island Fishing Spots. Cook for food."},
+  {name:"Coin",cat:"Raw",ing:"Enemies / Selling / Old Village",desc:"Buy Booster Packs. Sell resources at Market for bonus coins."},
+  {name:"Copper Deposit",cat:"Raw",ing:"S2000 packs <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. One-time node. Stack Worker → Copper Ore. Used to build Copper Mine."},
+  {name:"Copper Ore",cat:"Raw",ing:"Copper Deposit / Copper Mine <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Smelt + Wood → Copper Bar."},
+  {name:"Cotton",cat:"Raw",ing:"Cotton Plant + Villager",desc:"Used for Rope (×2 + Villager) and Fabric (×4 + Villager)."},
+  {name:"Dollar",cat:"Raw",ing:"Export Center <span class='dlc-note'>(Stacklands 2000 DLC)</span>",desc:"⚠️ S2000 DLC. Industrial currency ($10, $20, $50, $100)."},
+  {name:"Driftwood",cat:"Raw",ing:"Island packs / Ocean",desc:"From Island packs. Used in boat construction."},
+  {name:"Eel",cat:"Raw",ing:"Fishing Spot (Fisher + Rod)",desc:"Fish from Island Fishing Spots. Can be cooked or kept in Aquarium."},
+  {name:"Egg",cat:"Raw",ing:"Chicken (Animal Pen)",desc:"From Chickens. Used for Omelette, Frittata, Cooked Chicken, Tamago Sushi."},
+  {name:"Fabric",cat:"Raw",ing:"Cotton ×4 + Villager OR Wool ×4 + Villager",desc:"Used in Wizard Robe and Sail."},
+  {name:"Flint",cat:"Raw",ing:"Packs / Rocks / Mountain / Cave",desc:"Used for Campfire, Smelter, Iron Mine, Blunderbuss. Stock up early."},
+  {name:"Glass",cat:"Raw",ing:"Island packs / Smelter + Sand + Wood",desc:"From Island packs or smelt Sand + Wood. Used for Aquarium, Greenhouse, Sacred Key, Cathedral."},
+  {name:"Gold Deposit",cat:"Raw",ing:"Island packs",desc:"One-time use. Stack Villager → Gold Ore."},
+  {name:"Gold Ore",cat:"Raw",ing:"Island packs / Gold Mine",desc:"Only from Island or Gold Mine. Smelt + Wood → Gold Bar."},
+  {name:"Goop",cat:"Raw",ing:"Drop: Frog Man / Snake",desc:"Drops from Frog Men and Snakes. Sell at Market if excess."},
+  {name:"Iron Deposit",cat:"Raw",ing:"'Order and Structure' pack / Mountain (25%)",desc:"One-time use. Stack Villager → Iron Ore (71%), Stone (14%), or Coin. Useful before Iron Mine."},
+  {name:"Iron Ore",cat:"Raw",ing:"Packs / Iron Mine / Mountain / Cave",desc:"Smelt + Wood → Iron Bar. Build Iron Mine ASAP."},
+  {name:"Lime",cat:"Raw",ing:"Island packs",desc:"From Island. Used in Ceviche (+ Raw Fish)."},
+  {name:"Magic Dust",cat:"Raw",ing:"Catacombs (explore) / kill Goblins",desc:"From Catacombs (explore all 5!) or Goblins. Used for:\n<ul><li>Forest Amulet, Mountain Amulet (Smithy)</li><li>Stable Portal (×2 + Brick ×2 + Villager)</li></ul>"},
+  {name:"Milk",cat:"Raw",ing:"Cow (Animal Pen) / Plains",desc:"From Cows. Used in Milkshake (+ Berry)."},
+  {name:"Mushroom",cat:"Raw",ing:"Forest / Garden / Farm",desc:"Eaten directly as food."},
+  {name:"Onion",cat:"Raw",ing:"Plains / Garden / Farm",desc:"Used in Stew."},
+  {name:"Potato",cat:"Raw",ing:"Garden / Farm",desc:"Used in Stew and Frittata."},
+  {name:"Poop",cat:"Raw",ing:"Animals (Animal Pen) / kill Rabbit",desc:"From animals and Rabbit kills. Used in Composter (×2 + Plank + Brick + Villager → Soil)."},
+  {name:"Raw Crab Meat",cat:"Raw",ing:"Crab (Island)",desc:"From Crabs. Used in Seafood Stew."},
+  {name:"Raw Fish",cat:"Raw",ing:"Fishing Spot (Fisher + Fishing Rod)",desc:"Used in Sushi, Seafood Stew, and Ceviche."},
+  {name:"Raw Meat",cat:"Raw",ing:"Wolves / Bears / Rabbits / Cows",desc:"Cook on Campfire → Cooked Meat. Used in Stew."},
+  {name:"Rope",cat:"Raw",ing:"Cotton ×2 + Villager OR Wool ×2 + Villager",desc:"Used in Bow, Fishing Rod, Sail, Fish Trap, Crossbow, Slingshot."},
+  {name:"Sand",cat:"Raw",ing:"Island packs / shore",desc:"From Island. Used in Sandstone and Smelter → Glass."},
+  {name:"Sandstone",cat:"Raw",ing:"Sand + Stone + Villager",desc:"Island building material."},
+  {name:"Seaweed",cat:"Raw",ing:"Island / Fishing Spot",desc:"From Island or Fishing Spots. Used in Sushi and Tamago Sushi."},
+  {name:"Shell",cat:"Raw",ing:"Sell cards on the Island",desc:"Island currency — earned selling on Island. Used to buy Island packs."},
+  {name:"Skull",cat:"Raw",ing:"Catacombs / Graveyard exploration",desc:"From Catacombs and Graveyard. Mainly sell for Coins."},
+  {name:"Soil",cat:"Raw",ing:"Packs / Plains / Graveyard / Composter",desc:"Needed to start crops on Garden/Farm. Use Composter for renewable supply."},
+  {name:"Stone",cat:"Raw",ing:"Packs / Rocks / Quarry / Mountain",desc:"Used to make Bricks (×3 → 1 Brick). Build Quarry for unlimited supply."},
+  {name:"Wood",cat:"Raw",ing:"Packs / Trees / Lumber Camp / Forest",desc:"Most basic resource. Build Lumber Camp first."},
+  {name:"Wool",cat:"Raw",ing:"Sheep (Animal Pen)",desc:"Alternative to Cotton for Rope (×2) and Fabric (×4)."},
+];
+var catOrder=["Basic","Building","Cooking","Military","Resource","Important","Location","Special","Enemy","Raw"];
+data.sort(function(a,b){
+  var ai=catOrder.indexOf(a.cat),bi=catOrder.indexOf(b.cat);
+  if(ai!==bi)return ai-bi;
+  return a.name<b.name?-1:a.name>b.name?1:0;
+});
+// ── CONSTANTS ──
+var WNDEFAULTS={
+  'Poop':{sit:'Poop acumulando',sol:'1) Composter (x2 Poop + Plank + Brick + Villager) = Soil\n2) Vender no Market',items:['Composter','Market']},
+  'Treasure Chest':{sit:'Encontrei um Treasure Chest',sol:'Empilha Key nele = loot aleatorio.\nKeys: drop de Skeleton/Slime.',items:['Key']},
+  'Goblet':{sit:'Tenho um Goblet',sol:'AVISO: Coloca no Temple = boss final AGORA.\nEquipa TODOS os Villagers primeiro!',items:['Temple','Demon Lord']},
+  'Empty Bottle':{sit:'Sobrou uma Empty Bottle',sol:'Opcao 1: + Stone = Broken Bottle (Combat Lv 8!)\nOpcao 2: Spring = Bottle of Water para Distillery',items:['Broken Bottle','Spring']},
+  'Corpse':{sit:'Villager morreu',sol:'2 Corpses = Graveyard = Bone, Soil, Skull.',items:['Graveyard']},
+  'Strange Portal':{sit:'Strange Portal apareceu',sol:'1) Villager armado pronto\n2) Explora Catacombs TODAS 5x = Magic Dust!',items:['Catacombs','Magic Dust']},
+  'Travelling Cart':{sit:'Travelling Cart apareceu',sol:'Empilha Coins rapido, ela sai logo!',items:['Coin']},
+  'Magic Dust':{sit:'Tenho Magic Dust',sol:'Prior 1: Stable Portal (x2 + Brick x2 + Villager)\nPrior 2: Amulet no Smithy',items:['Stable Portal','Forest Amulet']},
+  'Key':{sit:'Tenho uma Key',sol:'Empilha em Treasure Chest para abrir.',items:['Treasure Chest']},
+  'Stone':{sit:'Muito Stone acumulando',sol:'Vender no Market ou converter em Bricks.',items:['Market','Brickyard']},
+  'Iron Ore':{sit:'Preciso de Iron Ore',sol:'Build Iron Mine para producao infinita.',items:['Iron Mine']},
+  'Gold Ore':{sit:'Preciso de Gold Ore',sol:'Island + Gold Mine.',items:['Gold Mine','Island']},
+};
+var moonRanges=[
+  {l:'Moons 1-3',f:1,t:3,c:['Campfire','Berry Bush','Lumber Camp','Quarry','Garden','Spear']},
+  {l:'Moons 4-7',f:4,t:7,c:['Smelter','Iron Bar','Iron Mine','Sword','Farm','Shed']},
+  {l:'Moons 8-12',f:8,t:12,c:['Smithy','Chainmail Armor','Iron Shield','Strange Portal','Stable Portal']},
+  {l:'Moons 13-18',f:13,t:18,c:['Forest Amulet','Magic Dust','Rowboat','Market','Warehouse']},
+  {l:'Moon 19+',f:19,t:999,c:['Travelling Cart','Island','Gold Mine','Sacred Key','Cathedral','Goblet']},
+];
+var moonEvents=[
+  {f:1,t:4,cls:'mev-ok',txt:'Inicio - comida e Lumber Camp + Quarry'},
+  {f:5,t:8,cls:'mev-warn',txt:'Smelter + primeira arma'},
+  {f:9,t:11,cls:'mev-warn',txt:'Moon impar: 10% Travelling Cart!'},
+  {f:12,t:12,cls:'mev-alert',txt:'Moon 12 - Strange Portal GARANTIDO'},
+  {f:13,t:15,cls:'mev-warn',txt:'Inimigos mais fortes'},
+  {f:16,t:16,cls:'mev-alert',txt:'Moon 16 - Strange Portal'},
+  {f:17,t:18,cls:'mev-warn',txt:'Push para Island e Dark Forest'},
+  {f:19,t:19,cls:'mev-alert',txt:'Moon 19 - Travelling Cart GARANTIDO!'},
+  {f:20,t:20,cls:'mev-alert',txt:'Moon 20 - Strange Portal'},
+  {f:21,t:23,cls:'mev-warn',txt:'Cathedral, Sacred Key, endgame'},
+  {f:24,t:24,cls:'mev-alert',txt:'Moon 24 - Strange Portal'},
+  {f:25,t:999,cls:'mev-alert',txt:'Endgame - Goblet no Temple!'},
+];
+var flatTasks=[
+  {id:'gs1',t:'Craft a Spear - first weapon (Lv 3)',ph:'early',cat:'Get Stronger',items:['Spear']},
+  {id:'gs2',t:'Build a Smelter to produce Iron Bars',ph:'mid',cat:'Get Stronger',items:['Smelter']},
+  {id:'gs3',t:'Craft a Sword (Lv 4)',ph:'mid',cat:'Get Stronger',items:['Sword']},
+  {id:'gs4',t:'Build a Smithy for advanced gear',ph:'mid',cat:'Get Stronger',items:['Smithy']},
+  {id:'gs5',t:'Craft Boomerang - easy Smithy weapon (Lv 5)',ph:'mid',cat:'Get Stronger',items:['Boomerang']},
+  {id:'gs6',t:'Craft Chainmail Armor (Lv 7)',ph:'mid',cat:'Get Stronger',items:['Chainmail Armor']},
+  {id:'gs7',t:'Craft Iron Shield (Lv 7)',ph:'mid',cat:'Get Stronger',items:['Iron Shield']},
+  {id:'gs8',t:'Build Stable Portal - enter Dark Forest',ph:'late',cat:'Get Stronger',items:['Stable Portal']},
+  {id:'gs9',t:'Collect Magic Dust from Catacombs (all 5!)',ph:'late',cat:'Get Stronger',items:['Catacombs']},
+  {id:'gs10',t:'Forge Forest or Mountain Amulet',ph:'late',cat:'Get Stronger',items:['Forest Amulet']},
+  {id:'gs11',t:'Craft Golden Chestplate (Lv 9)',ph:'late',cat:'Get Stronger',items:['Golden Chestplate']},
+  {id:'gs12',t:'Craft Blunderbuss - max damage (Lv 9)',ph:'late',cat:'Get Stronger',items:['Blunderbuss']},
+  {id:'eb1',t:'Plant Berry Bushes - free early food',ph:'early',cat:'Eat Better',items:['Berry Bush']},
+  {id:'eb2',t:'Build a Garden - grow crops',ph:'early',cat:'Eat Better',items:['Garden']},
+  {id:'eb3',t:'Build Campfire - cook meat',ph:'early',cat:'Eat Better',items:['Campfire']},
+  {id:'eb4',t:'Build a Farm - faster than Garden',ph:'mid',cat:'Eat Better',items:['Farm']},
+  {id:'eb5',t:'Get Animal Pen - passive Eggs and Milk',ph:'mid',cat:'Eat Better',items:['Animal Pen']},
+  {id:'eb6',t:'Build Stove - faster cooking',ph:'mid',cat:'Eat Better',items:['Stove']},
+  {id:'eb7',t:'Cook Stew - best mid-game food',ph:'mid',cat:'Eat Better',items:['Stew']},
+  {id:'eb8',t:'Build Mess Hall - smart feeding',ph:'mid',cat:'Eat Better',items:['Mess Hall']},
+  {id:'eb9',t:'Build Composter - recycle food to Soil',ph:'mid',cat:'Eat Better',items:['Composter']},
+  {id:'eb10',t:'Build Greenhouse - auto-replants crops',ph:'late',cat:'Eat Better',items:['Greenhouse']},
+  {id:'ex1',t:'Find Forest - Wood, Berries, Rabbits',ph:'early',cat:'Explore',items:['Forest']},
+  {id:'ex2',t:'Find Mountain - Stone, Iron Ore, Bone',ph:'early',cat:'Explore',items:['Mountain']},
+  {id:'ex3',t:'Find Plains - Chickens, Cows, Carrots',ph:'early',cat:'Explore',items:['Plains']},
+  {id:'ex4',t:'Find Old Village - Coins and free Villagers',ph:'early',cat:'Explore',items:['Old Village']},
+  {id:'ex5',t:'Create Graveyard for Bone and Soil',ph:'early',cat:'Explore',items:['Graveyard']},
+  {id:'ex6',t:'Explore Cave - all 5 uses!',ph:'mid',cat:'Explore',items:['Cave']},
+  {id:'ex7',t:'Tame Wolf into Dog (Bone + Wolf)',ph:'mid',cat:'Explore',items:['Dog']},
+  {id:'ex8',t:'Get Explorer (Map + Villager) - 2x faster',ph:'mid',cat:'Explore',items:['Explorer']},
+  {id:'ex9',t:'Unlock Island - buy On the Shore pack',ph:'mid',cat:'Explore',items:['Gold Ore']},
+  {id:'ex10',t:'Explore Catacombs ALL 5 times - Magic Dust!',ph:'mid',cat:'Explore',items:['Catacombs']},
+  {id:'ex11',t:'Enter Dark Forest via Stable Portal',ph:'late',cat:'Explore',items:['Stable Portal']},
+  {id:'bld1',t:'P1 - Lumber Camp: infinite Wood',ph:'early',cat:'Essential Buildings',items:['Lumber Camp']},
+  {id:'bld2',t:'P1 - Quarry: infinite Stone',ph:'early',cat:'Essential Buildings',items:['Quarry']},
+  {id:'bld3',t:'P1 - Shed x2-3: expand card cap',ph:'early',cat:'Essential Buildings',items:['Shed']},
+  {id:'bld4',t:'P2 - Smelter: Iron and Gold Bars',ph:'mid',cat:'Essential Buildings',items:['Smelter']},
+  {id:'bld5',t:'P2 - Iron Mine: infinite Iron Ore',ph:'mid',cat:'Essential Buildings',items:['Iron Mine']},
+  {id:'bld6',t:'P3 - Farm, Sawmill, Brickyard',ph:'mid',cat:'Essential Buildings',items:['Farm','Sawmill']},
+  {id:'bld7',t:'P4 - Smithy, Warehouse, Animal Pen',ph:'mid',cat:'Essential Buildings',items:['Smithy','Warehouse']},
+  {id:'bld8',t:'Late - Greenhouse, Temple, Cathedral',ph:'late',cat:'Essential Buildings',items:['Greenhouse','Temple']},
+  {id:'ec1',t:'Build Market - sell for more Coins',ph:'early',cat:'Economy',items:['Market']},
+  {id:'ec2',t:'Sell excess Stone and Wood early',ph:'early',cat:'Economy',items:['Stone']},
+  {id:'ec3',t:'Buy from Travelling Cart strategically',ph:'mid',cat:'Economy',items:['Travelling Cart']},
+  {id:'isl1',t:'Buy On the Shore pack to reach Island',ph:'mid',cat:'Island',items:['Gold Ore']},
+  {id:'isl2',t:'Collect Glass for Aquarium and Greenhouse',ph:'mid',cat:'Island',items:['Glass','Aquarium']},
+  {id:'isl3',t:'Build Gold Mine - unlimited Gold Ore',ph:'late',cat:'Island',items:['Gold Mine']},
+  {id:'isl4',t:'Craft Sacred Key - open Sacred Chest',ph:'late',cat:'Island',items:['Sacred Key']},
+  {id:'isl5',t:'Build Cathedral',ph:'late',cat:'Island',items:['Cathedral']},
+  {id:'df1',t:'Get a Strange Portal (random Moon event)',ph:'mid',cat:'Dark Forest',items:['Strange Portal']},
+  {id:'df2',t:'Explore Catacombs all 5 uses - Magic Dust!',ph:'mid',cat:'Dark Forest',items:['Catacombs']},
+  {id:'df3',t:'Build Stable Portal - permanent Dark Forest',ph:'late',cat:'Dark Forest',items:['Stable Portal']},
+  {id:'df4',t:'Equip all Villagers before entering',ph:'late',cat:'Dark Forest',items:['Chainmail Armor']},
+  {id:'df5',t:'Craft Amulets with Magic Dust',ph:'late',cat:'Dark Forest',items:['Forest Amulet']},
+  {id:'win1',t:'Build Temple',ph:'late',cat:'Win the Game',items:['Temple']},
+  {id:'win2',t:'Unlock Island - Gold and Glass needed',ph:'mid',cat:'Win the Game',items:['Gold Bar']},
+  {id:'win3',t:'Build Cathedral',ph:'late',cat:'Win the Game',items:['Cathedral']},
+  {id:'win4',t:'Craft the Sacred Key',ph:'late',cat:'Win the Game',items:['Sacred Key']},
+  {id:'win5',t:'Find Goblet and place on Temple',ph:'late',cat:'Win the Game',items:['Goblet']},
+  {id:'win6',t:'Defeat the Demon Lord - equip everyone!',ph:'late',cat:'Win the Game',items:['Blunderbuss']},
+];
+var vmTypes={
+  'Villager':{tc:'tc-villager',ab:'ab-villager',food:2},
+  'Baby':{tc:'tc-baby',ab:'ab-baby',food:1},
+  'Militia':{tc:'tc-militia',ab:'ab-militia',food:2},
+  'Builder':{tc:'tc-builder',ab:'ab-builder',food:2},
+  'Archer':{tc:'tc-archer',ab:'ab-archer',food:2},
+  'Fisher':{tc:'tc-fisher',ab:'ab-fisher',food:2},
+  'Explorer':{tc:'tc-explorer',ab:'ab-explorer',food:2},
+  'Miner':{tc:'tc-miner',ab:'ab-miner',food:2},
+  'Healer':{tc:'tc-healer',ab:'ab-healer',food:2},
+  'Wizard':{tc:'tc-wizard',ab:'ab-wizard',food:2},
+  'Farmer':{tc:'tc-farmer',ab:'ab-farmer',food:2}
+};
+var vmFns=['Lumber Camp','Quarry','Iron Mine','Gold Mine','Farm','Garden','Greenhouse','Animal Pen','Market','Smelter','Smithy','Forest','Mountain','Plains','Old Village','Cave','Catacombs','Dark Forest','Island','Combat','Comida','Fishing','Stable Portal'];
+var equipDefs={
+  'Helmet':{s:'head',a:0,d:2,h:0},'Skull Helmet':{s:'head',a:2,d:2,h:5},'Horned Helmet':{s:'head',a:4,d:4,h:5},
+  'Rabbit Hat':{s:'head',a:2,d:0,h:-5},'Wolf Head':{s:'head',a:2,d:1,h:2},'Pirate Hat':{s:'head',a:0,d:1,h:0},
+  'Frog Helmet':{s:'head',a:1,d:2,h:2},'Goblin Hat':{s:'head',a:1,d:1,h:0},'Dark Amulet':{s:'head',a:2,d:1,h:0},
+  'Wooden Shield':{s:'body',a:0,d:2,h:0},'Iron Shield':{s:'body',a:0,d:4,h:0},'Chainmail Armor':{s:'body',a:0,d:4,h:0},
+  'Golden Chestplate':{s:'body',a:0,d:6,h:0},'Wizard Robe':{s:'body',a:2,d:1,h:0},'Leather Tunic':{s:'body',a:0,d:2,h:0},
+  'Tiger Fur Coat':{s:'body',a:0,d:3,h:0},'Fire Cloak':{s:'body',a:2,d:3,h:0},'Crab Scale Armor':{s:'body',a:0,d:5,h:3},
+  'Spear':{s:'hand',a:3,d:0,h:0},'Club':{s:'hand',a:2,d:0,h:0},'Sword':{s:'hand',a:5,d:0,h:0},
+  'Axe':{s:'hand',a:6,d:0,h:0},'Bow':{s:'hand',a:5,d:0,h:0},'Slingshot':{s:'hand',a:4,d:0,h:0},
+  'Bone Spear':{s:'hand',a:7,d:0,h:0},'Boomerang':{s:'hand',a:7,d:0,h:0},'Crossbow':{s:'hand',a:8,d:0,h:0},
+  'Hammer':{s:'hand',a:9,d:0,h:0},'Bear Claw':{s:'hand',a:7,d:0,h:0},'Morning Star':{s:'hand',a:8,d:0,h:0},
+  'Broken Bottle':{s:'hand',a:11,d:0,h:0},'Blunderbuss':{s:'hand',a:12,d:0,h:0},'Demon Sword':{s:'hand',a:15,d:0,h:0},
+  'Kraken Tooth Axe':{s:'hand',a:12,d:0,h:0},'Forest Amulet':{s:'hand',a:6,d:0,h:0},
+  'Mountain Amulet':{s:'hand',a:4,d:2,h:0},'Magic Staff':{s:'hand',a:6,d:0,h:0},'Bone Staff':{s:'hand',a:7,d:0,h:0}
+};
+
+// ── STATE ──
+var state={moon:1,starred:{},checklist:[],whatnow:[],enemies:{},villagers:[],vmDeaths:0,combatEnemies:null,panelH:{},panelOpen:{},taskOrder:null,taskChecked:{},spPhase:'all',spCat:'all'};
+function save(){
+  try{
+    localStorage.setItem('sl_guide',JSON.stringify(state));
+    var el=document.getElementById('sv-ok');
+    el.style.opacity='1';
+    setTimeout(function(){el.style.opacity='0';},1400);
+  }catch(e){}
+}
+function loadSave(){
+  try{
+    // Check version - if old version, ignore saved state
+    var ver=localStorage.getItem('sl_ver');
+    if(ver==='4'){
+      var keys=['sl_guide','sl2','sl3'];
+      for(var i=0;i<keys.length;i++){
+        var r=localStorage.getItem(keys[i]);
+        if(r){Object.assign(state,JSON.parse(r));break;}
+      }
+    }
+    localStorage.setItem('sl_ver','4');
+  }catch(e){}
+  // Always reset panel visibility
+  state.panelOpen={};
+  state.panelH={};
+  if(!state.combatEnemies||!state.combatEnemies.length)state.combatEnemies=[{hp:'',dmg:'',spd:''}];
+}
+function exportSave(){
+  var b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='stacklands-save.json';a.click();
+}
+function importSave(e){
+  var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(ev){try{Object.assign(state,JSON.parse(ev.target.result));save();renderAll();}catch(err){alert('Invalid file');}};
+  r.readAsText(f);e.target.value='';
+}
+
+// ── TABS ──
+var activeTab=0;
+function switchTab(n){
+  activeTab=n;
+  for(var i=0;i<3;i++){
+    document.getElementById('tab-btn-'+i).className='tab'+(i===n?' on':'');
+    document.getElementById('pane-'+i).className='pane'+(i===n?' on':'');
+  }
+}
+
+// ── ZOOM ──
+var zSteps=[55,65,75,85,100,115,130];var zIdx=4;
+function zoom(d){
+  zIdx=Math.max(0,Math.min(zSteps.length-1,zIdx+d));
+  document.getElementById('app').style.fontSize=(zSteps[zIdx]/100)+'em';
+  document.getElementById('zlbl').textContent=zSteps[zIdx]+'%';
+}
+
+// ── PANELS ──
+function togglePanel(id){
+  var b=document.getElementById('pb-'+id);
+  var a=document.getElementById(id+'-arr');
+  if(!b)return;
+  var closing=!b.classList.contains('closed');
+  if(closing){b.classList.add('closed');if(a)a.classList.remove('open');}
+  else{b.classList.remove('closed');if(a)a.classList.add('open');}
+  state.panelOpen[id]=!closing;
+  save();
+}
+function restorePanels(){
+  var ids=Object.keys(state.panelH);
+  for(var i=0;i<ids.length;i++){
+    var el=document.getElementById(ids[i]);
+    if(el){el.style.height=state.panelH[ids[i]]+'px';el.style.flex='0 0 '+state.panelH[ids[i]]+'px';}
+  }
+  var pids=Object.keys(state.panelOpen);
+  for(var j=0;j<pids.length;j++){
+    var pid=pids[j];
+    var b=document.getElementById('pb-'+pid);
+    var a=document.getElementById(pid+'-arr');
+    if(!b)continue;
+    if(!state.panelOpen[pid]){b.classList.add('closed');if(a)a.classList.remove('open');}
+    else{b.classList.remove('closed');if(a)a.classList.add('open');}
+  }
+}
+
+// ── RESIZE ──
+var rsEl=null,rsY=0,rsH=0;
+function startResize(e,id){
+  rsEl=document.getElementById(id);if(!rsEl)return;
+  rsY=e.clientY;rsH=rsEl.offsetHeight;
+  document.addEventListener('mousemove',doResize);
+  document.addEventListener('mouseup',endResize);
+  document.body.style.userSelect='none';
+  e.preventDefault();
+}
+function doResize(e){
+  if(!rsEl)return;
+  var h=Math.max(40,rsH+(e.clientY-rsY));
+  rsEl.style.height=h+'px';rsEl.style.flex='0 0 '+h+'px';
+}
+function endResize(){
+  if(rsEl){state.panelH[rsEl.id]=rsEl.offsetHeight;save();}
+  rsEl=null;document.body.style.userSelect='';
+  document.removeEventListener('mousemove',doResize);
+  document.removeEventListener('mouseup',endResize);
+}
+
+// ── MOON ──
+function changeMoon(d){state.moon=Math.max(1,state.moon+d);renderMoon();save();}
+function renderMoon(){
+  var m=state.moon;
+  var mn0=document.getElementById('mn0');if(mn0)mn0.textContent=m;
+  var mn1=document.getElementById('mn1');if(mn1)mn1.textContent=m;
+  var ev=null;
+  for(var i=0;i<moonEvents.length;i++){if(m>=moonEvents[i].f&&m<=moonEvents[i].t){ev=moonEvents[i];break;}}
+  var ids=['mev0','mev1'];
+  for(var j=0;j<ids.length;j++){
+    var el=document.getElementById(ids[j]);if(!el)continue;
+    if(ev){el.className='mevt '+ev.cls;el.textContent=ev.txt;}
+    else{el.className='mevt mev-none';el.textContent='';}
+  }
+  renderMoonRanges();
+}
+function renderMoonRanges(){
+  var m=state.moon;
+  var html='';
+  for(var i=0;i<moonRanges.length;i++){
+    var r=moonRanges[i];
+    var cur=(m>=r.f&&m<=r.t);
+    html+='<div class="mr-row"><span class="mr-lbl'+(cur?' cur':'')+'">'+r.l+'</span><span class="mr-chips">';
+    for(var j=0;j<r.c.length;j++){
+      html+='<span class="mc'+(cur?' cur':'')+'" data-item="'+esc(r.c[j])+'">'+r.c[j]+'</span>';
+    }
+    html+='</span></div>';
+  }
+  var el0=document.getElementById('mranges0');if(el0)el0.innerHTML=html;
+  var el1=document.getElementById('mranges1');if(el1)el1.innerHTML=html;
+}
+
+// ── UTILS ──
+function esc(s){return s.replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function getSrc(d){
+  var i=d.ing.toLowerCase();
+  if(i.indexOf('dlc')>=0||i.indexOf('stacklands 2000')>=0)return{k:'dlc',l:'DLC'};
+  if(i.indexOf('drop:')>=0)return{k:'drop',l:'Drop'};
+  if(i.indexOf('packs')>=0||i.indexOf('found in')>=0||i.indexOf('exploration')>=0)return{k:'found',l:'Found'};
+  if(i.indexOf('left after')>=0||i.indexOf('villager dies')>=0)return{k:'drop',l:'Drop'};
+  return{k:'craft',l:'Craft'};
+}
+// Sorted item names for linking (longest first, computed once)
+var _sortedItems=null;
+function getSortedItems(){
+  if(!_sortedItems){
+    _sortedItems=[];
+    for(var _i=0;_i<data.length;_i++)_sortedItems.push(data[_i].name);
+    _sortedItems.sort(function(a,b){return b.length-a.length;});
+  }
+  return _sortedItems;
+}
+function linkText(txt){
+  if(!txt)return '';
+  var out=txt;
+  var names=getSortedItems();
+  var placeholders=[];
+  var pid=0;
+  for(var i=0;i<names.length;i++){
+    var nm=names[i];
+    if(out.indexOf(nm)<0)continue;
+    var safe=nm.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    var ph='\x01'+pid+'\x01';
+    placeholders.push('<span class="il" data-item="'+esc(nm)+'">'+nm+'</span>');
+    out=out.replace(new RegExp(safe,'g'),ph);
+    pid++;
+  }
+  for(var j=0;j<placeholders.length;j++){
+    out=out.split('\x01'+j+'\x01').join(placeholders[j]);
+  }
+  return out;
+}
+function fmtIng(s){
+  var clean=s.replace(/<[^>]+>/g,'').trim();
+  return clean.replace(/([A-Za-z][^+<]{0,28}?)\s*[\u00D7x]\s*(\d+)/g,function(m,name,n){
+    var num=parseInt(n);return num>1?'('+num+') '+name.trim():name.trim();
+  });
+}
+function renderDesc(desc){
+  if(!desc)return '';
+  // Keep HTML structure, apply linkText
+  var out=desc.replace(/\(Stacklands 2000 DLC\)/g,'<span class="dlcn">(S2000)</span>').replace(/\(Cursed Worlds DLC\)/g,'<span class="dlcn">(CW DLC)</span>');
+  // Convert plain newlines to br if no HTML lists present
+  if(out.indexOf('<ul')<0&&out.indexOf('<li')<0){
+    out=out.replace(/\n/g,'<br>');
+  }
+  return linkText(out);
+}
+function plainDesc(s){return s.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();}
+
+// ── CRAFT TABLE ──
+var activeCat='All';
+function buildCatBar(){
+  var w=document.getElementById('cat-bar');if(!w)return;
+  w.innerHTML='';
+  var cats=['All'].concat(catOrder);
+  for(var i=0;i<cats.length;i++){
+    var b=document.createElement('button');
+    b.className='cpill'+(activeCat===cats[i]?' on':'');
+    b.textContent=cats[i];
+    b.dataset.cat=cats[i];
+    w.appendChild(b);
+  }
+}
+function clearSearch(){
+  document.getElementById('srch').value='';
+  render();
+}
+function render(){
+  buildCatBar();
+  var q=document.getElementById('srch').value.toLowerCase().trim();
+  var rows=[];var count=0;
+  for(var i=0;i<data.length;i++){
+    var d=data[i];
+    if(activeCat!=='All'&&d.cat!==activeCat)continue;
+    if(q){
+      var haystack=(d.name+' '+d.ing+' '+d.desc).toLowerCase().replace(/<[^>]+>/g,' ');
+      if(haystack.indexOf(q)<0)continue;
+    }
+    count++;
+    var src=getSrc(d);
+    var isStar=!!state.starred[d.name];
+    var ing=linkText(fmtIng(d.ing));
+    var desc=renderDesc(d.desc);
+    var row='<tr class="dr" data-idx="'+i+'">';
+    row+='<td><span class="t-arr" id="ar-'+i+'">&#9658;</span></td>';
+    row+='<td><button class="sbtn'+(isStar?' on':'')+'" data-name="'+esc(d.name)+'">'+(isStar?'&#9733;':'&#9734;')+'</button></td>';
+    row+='<td><span class="t-nm">'+esc(d.name)+'</span></td>';
+    row+='<td><span class="t-ing">'+ing+'</span></td>';
+    row+='<td><span class="badge badge-'+d.cat+'">'+d.cat+'</span><br><span class="src src-'+src.k+'">'+src.l+'</span></td>';
+    row+='<td><button class="qbtn" data-name="'+esc(d.name)+'">?</button></td>';
+    row+='</tr>';
+    row+='<tr class="xr" id="xr-'+i+'"><td colspan="6">'+desc+'</td></tr>';
+    rows.push(row);
+  }
+  document.getElementById('tbody').innerHTML=rows.join('');
+  var cnt=count+' item'+(count!==1?'s':'');
+  document.getElementById('tbl-cnt').textContent=cnt;
+  document.getElementById('tbl-ft').textContent=cnt;
+}
+function toggleDesc(idx){
+  var xr=document.getElementById('xr-'+idx);
+  var ar=document.getElementById('ar-'+idx);
+  if(!xr)return;
+  var open=xr.classList.contains('open');
+  if(open){xr.classList.remove('open');if(ar)ar.classList.remove('open');}
+  else{xr.classList.add('open');if(ar)ar.classList.add('open');}
+}
+function goToItem(name){
+  var idx=-1;
+  for(var i=0;i<data.length;i++){if(data[i].name===name){idx=i;break;}}
+  if(idx<0)return;
+  activeCat='All';
+  document.getElementById('srch').value=name;
+  render();
+  if(activeTab!==0)switchTab(0);
+  var pb=document.getElementById('pb-tbl');
+  if(pb&&pb.classList.contains('closed'))togglePanel('tbl');
+  setTimeout(function(){
+    var row=document.querySelector('tr.dr[data-idx="'+idx+'"]');
+    if(row){row.scrollIntoView({behavior:'smooth',block:'center'});toggleDesc(idx);}
+  },80);
+}
+
+// ── EVENT DELEGATION ──
+document.addEventListener('click',function(e){
+  var el=e.target;
+  // cat pill
+  if(el.classList.contains('cpill')&&el.dataset.cat){activeCat=el.dataset.cat;clearSearch();return;}
+  // star
+  var sbtn=el.closest&&el.closest('.sbtn')||( el.classList.contains('sbtn')?el:null);
+  if(!sbtn&&el.className&&el.className.indexOf('sbtn')>=0)sbtn=el;
+  if(sbtn&&sbtn.dataset&&sbtn.dataset.name){
+    e.stopPropagation();
+    var nm=sbtn.dataset.name;
+    if(state.starred[nm])delete state.starred[nm];else state.starred[nm]={want:1,done:0};
+    renderCL();render();save();return;
+  }
+  // what now button
+  var qbtn=el.closest&&el.closest('.qbtn')||( el.className&&el.className.indexOf('qbtn')>=0?el:null);
+  if(!qbtn&&el.dataset&&el.dataset.name&&el.className.indexOf('qbtn')>=0)qbtn=el;
+  if(qbtn&&qbtn.dataset&&qbtn.dataset.name){
+    e.stopPropagation();addWnForItem(qbtn.dataset.name);return;
+  }
+  // moon chip
+  var mc=el.closest&&el.closest('.mc')||( el.classList.contains('mc')?el:null);
+  if(!mc&&el.className&&el.className.indexOf('mc')>=0)mc=el;
+  if(mc&&mc.dataset&&mc.dataset.item){goToItem(mc.dataset.item);return;}
+  // table row
+  var dr=el.closest&&el.closest('tr.dr');
+  if(dr&&dr.dataset&&dr.dataset.idx){toggleDesc(parseInt(dr.dataset.idx));return;}
+  // sp links
+  var splnk=el.closest&&el.closest('.sp-lnk');
+  if(splnk&&splnk.dataset&&splnk.dataset.item){goToItem(splnk.dataset.item);return;}
+  // wn links  
+  var wnlnk=el.closest&&el.closest('.wn-link');
+  if(wnlnk&&wnlnk.dataset&&wnlnk.dataset.item){goToItem(wnlnk.dataset.item);return;}
+});
+
+// ── CRAFT LIST ──
+function clQty(name,d){if(!state.starred[name])return;state.starred[name].want=Math.max(1,state.starred[name].want+d);renderCL();save();}
+function clDone(name){
+  if(!state.starred[name])return;
+  var s=state.starred[name];s.done=Math.min(s.want,s.done+1);
+  if(s.done>=s.want){
+    addChkEntry(name,s.want,'craft');
+    delete state.starred[name];
+    var pb=document.getElementById('pb-chk');
+    var ar=document.getElementById('chk-arr');
+    if(pb){pb.classList.remove('closed');state.panelOpen['chk']=true;}
+    if(ar)ar.classList.add('open');
+  }
+  renderCL();render();save();
+}
+function clRemove(name){delete state.starred[name];renderCL();render();save();}
+function renderCL(){
+  var list=document.getElementById('cl-list');
+  var empty=document.getElementById('cl-empty');
+  var cnt=document.getElementById('cl-cnt');
+  var tot=document.getElementById('cl-totals');
+  var names=Object.keys(state.starred);
+  cnt.textContent=names.length;
+  if(!names.length){empty.style.display='block';list.innerHTML='';tot.innerHTML='';return;}
+  empty.style.display='none';
+  var html='';
+  for(var ni=0;ni<names.length;ni++){
+    var name=names[ni];
+    var s=state.starred[name];
+    var pct=s.want>0?Math.round(s.done/s.want*100):0;
+    html+='<div class="cl-item">';
+    html+='<span class="cl-nm" onclick="goToItem(\''+name.replace(/\'/g,"\\'")+'\')" >'+esc(name)+'</span>';
+    html+='<div class="cl-qa"><button class="cl-qb" onclick="clQty(\''+name.replace(/\'/g,"\\'")+'\' ,-1)">-</button>';
+    html+='<span class="cl-qd">'+s.done+'/'+s.want+'</span>';
+    html+='<button class="cl-qb" onclick="clQty(\''+name.replace(/\'/g,"\\'")+'\',1)">+</button></div>';
+    html+='<div class="cl-pr"><div class="cl-pob"><div class="cl-pib" style="width:'+pct+'%"></div></div>';
+    html+='<button class="cl-done" onclick="clDone(\''+name.replace(/\'/g,"\\'")+'\')">+1</button></div>';
+    html+='<button class="cl-rm" onclick="clRemove(\''+name.replace(/\'/g,"\\'")+'\')">x</button>';
+    html+='</div>';
+  }
+  list.innerHTML=html;
+  // totals
+  var totals={};
+  for(var ti=0;ti<names.length;ti++){
+    var tname=names[ti];var ts=state.starred[tname];
+    var td=null;
+    for(var di=0;di<data.length;di++){if(data[di].name===tname){td=data[di];break;}}
+    if(!td)continue;
+    var rem=ts.want-ts.done;if(rem<=0)continue;
+    var ing=td.ing.replace(/<[^>]+>/g,'').replace(/\([^)]*\)/g,'').trim();
+    var parts=ing.split('+');
+    for(var pi=0;pi<parts.length;pi++){
+      var part=parts[pi].trim();
+      var m=part.match(/^(.+?)\s*[\u00D7x]\s*(\d+)$/);
+      var iname,qty;
+      if(m){iname=m[1].trim();qty=parseInt(m[2]);}else{iname=part;qty=1;}
+      if(!iname||/villager|found|drop|pack|island|event|dlc/i.test(iname))continue;
+      totals[iname]=(totals[iname]||0)+qty*rem;
+    }
+  }
+  var tkeys=Object.keys(totals);
+  if(!tkeys.length){tot.innerHTML='';return;}
+  var thtml='<div class="tot-box"><div class="tot-t">Ingredientes necessarios</div><div class="tot-grid">';
+  for(var ki=0;ki<tkeys.length;ki++){
+    thtml+='<span class="tt">'+esc(tkeys[ki])+' <span class="tt-q">x'+totals[tkeys[ki]]+'</span></span>';
+  }
+  tot.innerHTML=thtml+'</div></div>';
+}
+
+// ── CHECKLIST ──
+var chkSel=null;
+function chkSuggest(){
+  var q=document.getElementById('chk-si').value.toLowerCase().trim();
+  var sug=document.getElementById('chk-sug');
+  if(!q){sug.style.display='none';chkSel=null;return;}
+  var html='',cnt=0;
+  for(var i=0;i<data.length&&cnt<8;i++){
+    if(data[i].name.toLowerCase().indexOf(q)>=0){
+      html+='<div class="chl-sug-i" data-name="'+esc(data[i].name)+'">'+esc(data[i].name)+'</div>';
+      cnt++;
+    }
+  }
+  sug.style.display=html?'block':'none';
+  sug.innerHTML=html;
+}
+document.addEventListener('click',function(e){
+  var si=e.target.closest&&e.target.closest('.chl-sug-i');
+  if(!si&&e.target.className==='chl-sug-i')si=e.target;
+  if(si&&si.dataset&&si.dataset.name){
+    chkSel=si.dataset.name;
+    document.getElementById('chk-si').value=si.dataset.name;
+    document.getElementById('chk-sug').style.display='none';
+    return;
+  }
+  if(!e.target.closest('.chl-add-bar')&&!e.target.closest('#chk-sug'))document.getElementById('chk-sug').style.display='none';
+});
+function addChkItem(){
+  var name=chkSel||document.getElementById('chk-si').value.trim();
+  if(!name)return;
+  addChkEntry(name,1,'manual');
+  document.getElementById('chk-si').value='';
+  chkSel=null;
+  document.getElementById('chk-sug').style.display='none';
+}
+function addChkEntry(name,qty,src){
+  for(var i=0;i<state.checklist.length;i++){
+    if(state.checklist[i].name===name&&!state.checklist[i].checked){state.checklist[i].qty+=qty;renderChk();save();return;}
+  }
+  state.checklist.push({id:Date.now()+'_'+Math.random().toString(36).substr(2,5),name:name,qty:qty,src:src||'manual',checked:false});
+  renderChk();save();
+}
+function toggleChk(id){
+  for(var i=0;i<state.checklist.length;i++){if(state.checklist[i].id===id){state.checklist[i].checked=!state.checklist[i].checked;break;}}
+  renderChk();save();
+}
+function rmChk(id){state.checklist=state.checklist.filter(function(c){return c.id!==id;});renderChk();save();}
+function renderChk(){
+  var list=document.getElementById('chk-list');
+  if(!state.checklist.length){list.innerHTML='<div style="font-size:11px;color:#7a6840;padding:4px">Sem itens ainda.</div>';return;}
+  var html='';
+  for(var i=0;i<state.checklist.length;i++){
+    var c=state.checklist[i];
+    html+='<div class="chl-item">';
+    html+='<span class="chl-chk" onclick="toggleChk(\''+c.id+'\')">'+(c.checked?'☑':'☐')+'</span>';
+    html+='<span class="chl-nm'+(c.checked?' done':'')+'" onclick="goToItem(\''+c.name.replace(/\'/g,"\\'")+'\')" >'+esc(c.name)+'</span>';
+    html+='<input class="chl-qi" type="number" min="0" value="'+c.qty+'" data-id="'+c.id+'" onchange="updChkQ(this.dataset.id,this.value)" onclick="event.stopPropagation()">';
+    html+='<span class="chl-src'+(c.src==='craft'?' auto':'')+'">'+(c.src==='craft'?'auto':'manual')+'</span>';
+    html+='<button class="chl-rm" onclick="rmChk(\''+c.id+'\')" >x</button>';
+    html+='</div>';
+  }
+  list.innerHTML=html;
+}
+function updChkQ(id,val){for(var i=0;i<state.checklist.length;i++){if(state.checklist[i].id===id){state.checklist[i].qty=Math.max(0,parseInt(val)||0);break;}}save();}
+
+// ── WHAT NOW ──
+var wnSel=null;
+function wnSuggest(){
+  var q=document.getElementById('wn-si').value.toLowerCase().trim();
+  var sug=document.getElementById('wn-sug');
+  if(!q){sug.style.display='none';wnSel=null;return;}
+  var html='',cnt=0;
+  for(var i=0;i<data.length&&cnt<10;i++){
+    if(data[i].name.toLowerCase().indexOf(q)>=0){
+      html+='<div class="wn-sug-i" style="padding:3px 8px;cursor:pointer;font-size:11px;border-bottom:1px solid #b0a078" data-name="'+esc(data[i].name)+'">'+esc(data[i].name)+'</div>';
+      cnt++;
+    }
+  }
+  sug.style.display=html?'block':'none';sug.innerHTML=html;
+}
+document.addEventListener('mousedown',function(e){
+  var si=e.target.closest&&e.target.closest('.wn-sug-i');
+  if(!si&&e.target.dataset&&e.target.dataset.name&&e.target.style.cursor==='pointer')si=e.target;
+  if(si&&si.dataset&&si.dataset.name){
+    wnSel=si.dataset.name;document.getElementById('wn-si').value=si.dataset.name;
+    document.getElementById('wn-sug').style.display='none';
+  }
+});
+function addWn(){
+  var name=wnSel||document.getElementById('wn-si').value.trim();if(!name)return;
+  addWnForItem(name);
+  document.getElementById('wn-si').value='';wnSel=null;document.getElementById('wn-sug').style.display='none';
+}
+function addWnForItem(name){
+  for(var i=0;i<state.whatnow.length;i++){if(state.whatnow[i].card===name){if(activeTab!==1)switchTab(1);return;}}
+  var def=WNDEFAULTS[name]||{sit:'',sol:'',items:[]};
+  state.whatnow.push({id:Date.now()+'_'+Math.random().toString(36).substr(2,5),card:name,sit:def.sit,sol:def.sol,items:def.items||[],qty:0});
+  renderWn();save();if(activeTab!==1)switchTab(1);
+}
+function rmWn(id){state.whatnow=state.whatnow.filter(function(w){return w.id!==id;});renderWn();save();}
+function updWnQ(id,val){for(var i=0;i<state.whatnow.length;i++){if(state.whatnow[i].id===id){state.whatnow[i].qty=Math.max(0,parseInt(val)||0);break;}}save();}
+function renderWn(){
+  var list=document.getElementById('wn-list');
+  var cnt=document.getElementById('wn-cnt');
+  cnt.textContent=state.whatnow.length+' items';
+  if(!state.whatnow.length){list.innerHTML='<div class="wn-empty">Clique ? na tabela ou pesquise acima.</div>';return;}
+  var html='';
+  for(var i=0;i<state.whatnow.length;i++){
+    var w=state.whatnow[i];
+    html+='<div class="wn-item"><div class="wn-ih"><span class="wn-ic">'+esc(w.card)+'</span>';
+    html+='<span class="wn-iq">Tenho: <input type="number" min="0" value="'+(w.qty||0)+'" data-id="'+w.id+'" style="width:32px;font-size:10px;padding:1px 3px;text-align:center;background:#2a2010;border:1px solid #4a3820;border-radius:2px;color:#e8e0c8" onchange="updWnQ(this.dataset.id,this.value)" onclick="event.stopPropagation()"> ';
+    html+='<button class="wn-rm" onclick="rmWn(\''+w.id+'\')" >x</button></span></div>';
+    if(w.sit)html+='<div class="wn-sit">'+linkText(esc(w.sit))+'</div>';
+    if(w.sol){
+      var solHtml=w.sol.replace(/\n/g,'<br>');
+      html+='<div class="wn-sol">'+linkText(solHtml)+'</div>';
+    }
+    if(w.items&&w.items.length){
+      html+='<div class="wn-links">';
+      for(var j=0;j<w.items.length;j++){
+        html+='<span class="wn-link" data-item="'+esc(w.items[j])+'">→ '+esc(w.items[j])+'</span>';
+      }
+      html+='</div>';
+    }
+    html+='</div>';
+  }
+  list.innerHTML=html;
+}
+
+// ── STRATEGIC PRIORITIES ──
+var spDrag=null;
+function initSPOrder(){if(!state.taskOrder||state.taskOrder.length!==flatTasks.length){state.taskOrder=[];for(var i=0;i<flatTasks.length;i++)state.taskOrder.push(flatTasks[i].id);}}
+function buildSP(){
+  initSPOrder();
+  var ph=state.spPhase||'all';var cat=state.spCat||'all';
+  var cats=[];
+  for(var i=0;i<flatTasks.length;i++){if(cats.indexOf(flatTasks[i].cat)<0)cats.push(flatTasks[i].cat);}
+  var phHtml='';
+  var phases=['all','early','mid','late'];var phLabels={'all':'All','early':'🌱 Early','mid':'🔥 Mid','late':'⚡ Late'};
+  for(var pi=0;pi<phases.length;pi++){phHtml+='<button class="phbtn'+(ph===phases[pi]?' on-'+phases[pi]:'')+'" data-ph="'+phases[pi]+'">'+phLabels[phases[pi]]+'</button>';}
+  document.getElementById('sp-ph').innerHTML=phHtml;
+  var ctHtml='<span class="scp'+(cat==='all'?' on':'')+'" data-spcat="all">All</span>';
+  for(var ci=0;ci<cats.length;ci++){ctHtml+='<span class="scp'+(cat===cats[ci]?' on':'')+'" data-spcat="'+esc(cats[ci])+'">'+cats[ci]+'</span>';}
+  document.getElementById('sp-ct').innerHTML=ctHtml;
+  var done=0;for(var ti=0;ti<flatTasks.length;ti++){if(state.taskChecked[flatTasks[ti].id])done++;}
+  document.getElementById('sp-cnt').textContent=done+'/'+flatTasks.length;
+  var html='';
+  for(var oi=0;oi<state.taskOrder.length;oi++){
+    var id=state.taskOrder[oi];var t=null;
+    for(var fi=0;fi<flatTasks.length;fi++){if(flatTasks[fi].id===id){t=flatTasks[fi];break;}}
+    if(!t)continue;
+    if(ph!=='all'&&t.ph!==ph)continue;
+    if(cat!=='all'&&t.cat!==cat)continue;
+    var chk=!!state.taskChecked[t.id];
+    var links='';for(var li=0;li<t.items.length;li++){links+='<span class="sp-lnk" data-item="'+esc(t.items[li])+'">'+esc(t.items[li])+'</span>';}
+    html+='<div class="sp-item'+(chk?' done':'')+'" id="spi-'+t.id+'" draggable="true" data-spid="'+t.id+'">';
+    html+='<span class="sp-dh">&#8942;</span>';
+    html+='<span class="sp-chk" data-sptask="'+t.id+'">'+(chk?'☑':'☐')+'</span>';
+    html+='<span class="sp-txt">'+t.t+'</span>';
+    html+='<div class="sp-tags"><span class="ph-tag ph-'+t.ph+'">'+t.ph+'</span>';
+    html+='<span class="cat-tag-sp" data-spcat2="'+esc(t.cat)+'">'+t.cat+'</span>';
+    if(links)html+='<span style="display:flex;flex-wrap:wrap;gap:2px">'+links+'</span>';
+    html+='</div></div>';
+  }
+  document.getElementById('sp-list').innerHTML=html;
+}
+document.addEventListener('click',function(e){
+  var phbtn=e.target.closest&&e.target.closest('.phbtn')||( e.target.className==='phbtn'?e.target:null);
+  if(!phbtn&&e.target.dataset&&e.target.dataset.ph)phbtn=e.target;
+  if(phbtn&&phbtn.dataset&&phbtn.dataset.ph){state.spPhase=phbtn.dataset.ph;buildSP();save();return;}
+  var scpEl=e.target.closest&&e.target.closest('.scp')||( e.target.className==='scp'?e.target:null);
+  if(!scpEl&&e.target.dataset&&e.target.dataset.spcat)scpEl=e.target;
+  if(scpEl&&scpEl.dataset&&'spcat' in scpEl.dataset){state.spCat=scpEl.dataset.spcat;buildSP();save();return;}
+  var cat2El=e.target.closest&&e.target.closest('.cat-tag-sp');
+  if(!cat2El&&e.target.dataset&&e.target.dataset.spcat2)cat2El=e.target;
+  if(cat2El&&cat2El.dataset&&cat2El.dataset.spcat2){state.spCat=cat2El.dataset.spcat2;buildSP();save();return;}
+  var spChk=e.target.closest&&e.target.closest('.sp-chk');
+  if(!spChk&&e.target.dataset&&e.target.dataset.sptask)spChk=e.target;
+  if(spChk&&spChk.dataset&&spChk.dataset.sptask){state.taskChecked[spChk.dataset.sptask]=!state.taskChecked[spChk.dataset.sptask];buildSP();save();return;}
+});
+document.addEventListener('dragstart',function(e){var el=e.target.closest&&e.target.closest('[data-spid]');if(el){spDrag=el.dataset.spid;el.classList.add('dragging');}});
+document.addEventListener('dragover',function(e){e.preventDefault();var el=e.target.closest&&e.target.closest('[data-spid]');if(el)el.classList.add('drag-over');});
+document.addEventListener('dragleave',function(e){var el=e.target.closest&&e.target.closest('[data-spid]');if(el)el.classList.remove('drag-over');});
+document.addEventListener('drop',function(e){
+  e.preventDefault();
+  var el=e.target.closest&&e.target.closest('[data-spid]');
+  if(!el||!spDrag||el.dataset.spid===spDrag)return;
+  el.classList.remove('drag-over');
+  initSPOrder();
+  var from=state.taskOrder.indexOf(spDrag);
+  var to=state.taskOrder.indexOf(el.dataset.spid);
+  if(from<0||to<0)return;
+  state.taskOrder.splice(from,1);state.taskOrder.splice(to,0,spDrag);
+  spDrag=null;buildSP();save();
+});
+document.addEventListener('dragend',function(){spDrag=null;var els=document.querySelectorAll('.dragging,.drag-over');for(var i=0;i<els.length;i++)els[i].classList.remove('dragging','drag-over');});
+
+// ── COMBAT CALCULATOR ──
+function updateStats(){
+  var a=2,d=0,h=15;
+  var sels=[document.getElementById('cc-hd'),document.getElementById('cc-bd'),document.getElementById('cc-ha')];
+  for(var i=0;i<sels.length;i++){var eq=equipDefs[sels[i].value];if(eq){a+=eq.a;d+=eq.d;h+=eq.h;}}
+  document.getElementById('s-atk').textContent=a;
+  document.getElementById('s-def').textContent=d;
+  document.getElementById('s-hp').textContent=h;
+}
+function getVillagerStats(){
+  var a=2,d=0,h=15;
+  var sels=[document.getElementById('cc-hd'),document.getElementById('cc-bd'),document.getElementById('cc-ha')];
+  for(var i=0;i<sels.length;i++){var eq=equipDefs[sels[i].value];if(eq){a+=eq.a;d+=eq.d;h+=eq.h;}}
+  return{atk:a,def:d,hp:h};
+}
+function addCombatEnemy(){
+  if(!state.combatEnemies)state.combatEnemies=[];
+  state.combatEnemies.push({hp:'',dmg:'',spd:''});
+  renderCombatEnemies();save();
+}
+function removeCombatEnemy(idx){
+  state.combatEnemies.splice(idx,1);
+  if(!state.combatEnemies.length)state.combatEnemies=[{hp:'',dmg:'',spd:''}];
+  renderCombatEnemies();save();
+}
+function updateCombatEnemy(idx,field,val){
+  if(!state.combatEnemies[idx])return;
+  state.combatEnemies[idx][field]=val;
+  save();
+}
+function renderCombatEnemies(){
+  if(!state.combatEnemies||!state.combatEnemies.length)state.combatEnemies=[{hp:'',dmg:'',spd:''}];
+  var list=document.getElementById('cc-enemies-list');if(!list)return;
+  list.innerHTML='';
+  for(var i=0;i<state.combatEnemies.length;i++){
+    var row=document.createElement('div');row.className='cc-enemy-row';
+    var lbl=document.createElement('span');lbl.style.cssText='font-size:9px;color:#7a6840;flex-shrink:0';lbl.textContent='Enemy '+(i+1);row.appendChild(lbl);
+    var fields=[['HP','hp','number','1',''],['DMG','dmg','number','1',''],['SPD','spd','number','0.1','']];
+    for(var f=0;f<fields.length;f++){
+      var lab=document.createElement('label');lab.textContent=fields[f][0];row.appendChild(lab);
+      var inp=document.createElement('input');
+      inp.type=fields[f][2];inp.min=fields[f][3];inp.step=fields[f][4]||'1';
+      inp.placeholder='?';inp.value=state.combatEnemies[i][fields[f][1]]||'';
+      inp.dataset.idx=i;inp.dataset.fld=fields[f][1];
+      inp.addEventListener('input',function(){updateCombatEnemy(parseInt(this.dataset.idx),this.dataset.fld,this.value);});
+      row.appendChild(inp);
+    }
+    if(state.combatEnemies.length>1){
+      var rm=document.createElement('button');rm.className='cc-enemy-rm';rm.textContent='✕';
+      rm.dataset.idx=i;rm.addEventListener('click',function(){removeCombatEnemy(parseInt(this.dataset.idx));});
+      row.appendChild(rm);
+    }
+    list.appendChild(row);
+  }
+}
+function buildCombatUI(){
+  var hs=document.getElementById('cc-hd'),bs=document.getElementById('cc-bd'),ws=document.getElementById('cc-ha');
+  if(!hs||!bs||!ws)return;
+  var hkeys=Object.keys(equipDefs);
+  for(var i=0;i<hkeys.length;i++){
+    var nm=hkeys[i];var eq=equipDefs[nm];
+    var o=document.createElement('option');o.value=nm;o.textContent=nm;
+    if(eq.s==='head'){hs.appendChild(o);}
+    else if(eq.s==='body'){var o2=document.createElement('option');o2.value=nm;o2.textContent=nm;bs.appendChild(o2);}
+    else{var o3=document.createElement('option');o3.value=nm;o3.textContent=nm;ws.appendChild(o3);}
+  }
+  renderCombatEnemies();
+}
+function calcCombat(){
+  if(!state.combatEnemies||!state.combatEnemies.length)return;
+  var v=getVillagerStats();
+  var res=document.getElementById('cc-res');
+  // Validate at least one enemy has stats
+  var validEnemies=[];
+  for(var i=0;i<state.combatEnemies.length;i++){
+    var e=state.combatEnemies[i];
+    var hp=parseFloat(e.hp),dmg=parseFloat(e.dmg),spd=parseFloat(e.spd);
+    if(hp&&dmg&&spd)validEnemies.push({hp:hp,dmg:dmg,spd:spd});
+  }
+  if(!validEnemies.length){
+    res.style.display='block';res.className='cc-res res-close';
+    document.getElementById('cc-res-t').textContent='Fill enemy stats first';
+    document.getElementById('cc-res-d').textContent='Add at least one enemy with HP, DMG and SPD.';
+    return;
+  }
+  // Calculate: all enemies attack simultaneously
+  // Total effective damage per second = sum of each enemy's effDmg / spd
+  var totalEffDmgPerSec=0;
+  var details='';
+  var totalHitsToKill=0;
+  for(var j=0;j<validEnemies.length;j++){
+    var en=validEnemies[j];
+    var effDmg=Math.max(1,en.dmg-v.def);
+    var hitsToKillE=Math.ceil(en.hp/Math.max(1,v.atk));
+    totalHitsToKill+=hitsToKillE;
+    totalEffDmgPerSec+=effDmg/en.spd;
+    details+='Enemy '+(j+1)+': '+en.hp+' HP, '+en.dmg+' DMG ('+effDmg+' after DEF) → kill in '+hitsToKillE+' hits\n';
+  }
+  // Time for you to kill all enemies (sequential focus fire)
+  var totalTimeToKillAll=totalHitsToKill*( validEnemies.length>0?validEnemies[0].spd:1);
+  // Actually: you deal damage at every tick (enemy attack speed), focusing one at a time
+  // Simplify: use average speed for your attack rate
+  var avgSpd=0;for(var k=0;k<validEnemies.length;k++)avgSpd+=validEnemies[k].spd;
+  avgSpd/=validEnemies.length;
+  var vTimeToKillAll=totalHitsToKill*avgSpd;
+  // Time until you die from combined damage
+  var dmgPerSec=totalEffDmgPerSec;
+  var eTimeToDie=v.hp/dmgPerSec;
+  var margin=eTimeToDie-vTimeToKillAll;
+  var cls,title;
+  if(margin>avgSpd*2){cls='res-win';title='WIN';}
+  else if(margin>0){cls='res-close';title='WIN (close)';}
+  else if(margin>-avgSpd){cls='res-close';title='UNCERTAIN';}
+  else{cls='res-lose';title='LOSE';}
+  res.style.display='block';res.className='cc-res '+cls;
+  document.getElementById('cc-res-t').textContent=title+(validEnemies.length>1?' vs '+validEnemies.length+' enemies':'');
+  document.getElementById('cc-res-d').textContent=details
+    +'Your Villager: '+v.hp+' HP, '+v.atk+' ATK, '+v.def+' DEF\n'
+    +'Total hits to kill all: '+totalHitsToKill+'\n'
+    +'You kill all in ~'+vTimeToKillAll.toFixed(1)+'s · You die in ~'+eTimeToDie.toFixed(1)+'s';
+}
+
+// ── VILLAGER MANAGER ──
+function buildVMButtons(){
+  var row=document.getElementById('vm-addbtn-row');if(!row)return;
+  var html='';
+  var types=Object.keys(vmTypes);
+  for(var i=0;i<types.length;i++){
+    var tc=vmTypes[types[i]];
+    html+='<button class="vm-ab '+tc.ab+'" onclick="addVillager(\''+types[i]+'\')">+ '+types[i]+'</button>';
+  }
+  row.innerHTML=html;
+}
+function addVillager(type){state.villagers.push({id:Date.now()+'_'+Math.random().toString(36).substr(2,5),type:type,fn:''});renderVM();save();}
+function killVillager(id){
+  state.villagers=state.villagers.filter(function(v){return v.id!==id;});
+  if(!state.vmDeaths)state.vmDeaths=0;
+  state.vmDeaths++;
+  renderVM();save();
+}
+function resetDeaths(){state.vmDeaths=0;renderVM();save();}
+function rmVillager(id){state.villagers=state.villagers.filter(function(v){return v.id!==id;});renderVM();save();}
+function setVType(id,type){for(var i=0;i<state.villagers.length;i++){if(state.villagers[i].id===id){state.villagers[i].type=type;break;}}renderVM();save();}
+function selVFn(vid,fn){for(var i=0;i<state.villagers.length;i++){if(state.villagers[i].id===vid){state.villagers[i].fn=fn;break;}}var s=document.getElementById('vsug-'+vid);if(s)s.style.display='none';renderVM();save();}
+function showVSug(vid,inp){
+  var q=inp.value.toLowerCase().trim();
+  var sug=document.getElementById('vsug-'+vid);if(!sug)return;
+  var all=vmFns.slice();for(var i=0;i<data.length;i++)all.push(data[i].name);
+  var html='';var cnt=0;
+  for(var i=0;i<all.length&&cnt<12;i++){
+    if(!q||all[i].toLowerCase().indexOf(q)>=0){
+      html+='<div class="vm-sug-i" data-vid="'+vid+'" data-fn="'+esc(all[i])+'">'+esc(all[i])+'</div>';cnt++;
+    }
+  }
+  sug.style.display=html?'block':'none';sug.innerHTML=html;
+}
+document.addEventListener('mousedown',function(e){
+  var si=e.target.closest&&e.target.closest('.vm-sug-i')||( e.target.className==='vm-sug-i'?e.target:null);
+  if(!si&&e.target.dataset&&e.target.dataset.fn)si=e.target;
+  if(si&&si.dataset&&si.dataset.fn&&si.dataset.vid){selVFn(si.dataset.vid,si.dataset.fn);}
+});
+function renderVM(){
+  var list=document.getElementById('vm-list');
+  var sum=document.getElementById('vm-sum');
+  var warn=document.getElementById('vm-warn');
+  if(!state.villagers.length){
+    list.innerHTML='<div style="font-size:11px;color:#6a5840;padding:5px 0">Nenhum villager adicionado ainda.</div>';
+    sum.innerHTML='<div class="vm-box"><div class="vm-bn">0</div><div class="vm-bl">Total</div></div><div class="vm-box"><div class="vm-bn">0</div><div class="vm-bl">Food/Moon</div></div>';
+    warn.innerHTML='';return;
+  }
+  var totalFood=0;var byType={};
+  for(var i=0;i<state.villagers.length;i++){
+    var v=state.villagers[i];
+    var tc=vmTypes[v.type]||vmTypes['Villager'];
+    totalFood+=tc.food;
+    byType[v.type]=(byType[v.type]||0)+1;
+  }
+  if(!state.vmDeaths)state.vmDeaths=0;
+  var sumHtml='<div class="vm-box"><div class="vm-bn">'+state.villagers.length+'</div><div class="vm-bl">Total</div></div>';
+  sumHtml+='<div class="vm-box"><div class="vm-bn">'+totalFood+'</div><div class="vm-bl">Food/Moon</div></div>';
+  sumHtml+='<div class="vm-box" style="cursor:pointer" title="Click to reset" onclick="resetDeaths()"><div class="vm-bn" style="color:#e05050">'+state.vmDeaths+'</div><div class="vm-bl">☠ Deaths</div></div>';
+  var btypes=Object.keys(byType);
+  for(var bi=0;bi<btypes.length;bi++){
+    var tc2=vmTypes[btypes[bi]]||{tc:'tc-villager'};
+    sumHtml+='<div class="vm-box"><div class="vm-bn" style="color:#e8e0c8">'+byType[btypes[bi]]+'</div><div class="vm-bl">'+btypes[bi]+'</div></div>';
+  }
+  sum.innerHTML=sumHtml;
+  warn.innerHTML=totalFood>10?'<div class="vm-warn">⚠️ '+totalFood+' comida/Moon - verifique as farms!</div>':'';
+  var html='';
+  for(var vi=0;vi<state.villagers.length;vi++){
+    var v=state.villagers[vi];
+    var tc=vmTypes[v.type]||vmTypes['Villager'];
+    var vid=v.id;
+    html+='<div class="vm-row">';
+    html+='<span class="vm-badge '+tc.tc+'">'+v.type+'</span>';
+    html+='<div class="vm-fi-wrap"><input type="text" class="vm-fi" placeholder="Search item to add..." value="'+esc(v.fn)+'" oninput="showVSug(\''+vid+'\',this)" onfocus="showVSug(\''+vid+'\',this)">';
+    html+='<div id="vsug-'+vid+'" class="vm-sug" style="display:none"></div></div>';
+    html+='<select class="vm-ts" onchange="setVType(\''+vid+'\',this.value)">';
+    var vtypes=Object.keys(vmTypes);
+    for(var vti=0;vti<vtypes.length;vti++){html+='<option value="'+vtypes[vti]+'"'+(v.type===vtypes[vti]?' selected':'')+'>'+vtypes[vti]+'</option>';}
+    html+='</select>';
+    html+='<button class="vm-rm" onclick="killVillager(\''+vid+'\')" title="Registrar morte">☠</button>';
+    html+='<button class="vm-rm" onclick="rmVillager(\''+vid+'\')" title="Remover">✕</button>';
+    html+='</div>';
+  }
+  list.innerHTML=html;
+}
+
+// ── INIT ──
+document.getElementById('srch').addEventListener('input',function(){render();});
+function renderAll(){
+  renderMoon();
+  render();
+  renderCL();
+  renderChk();
+  renderWn();
+  buildSP();
+  buildVMButtons();
+  renderVM();
+}
+loadSave();
+buildCombatUI();
+renderAll();
+// Verify render worked
+var _tbl = document.getElementById('tbody');
+if(_tbl && _tbl.children.length === 0){
+  _tbl.innerHTML = '<tr><td colspan="6" style="padding:8px;color:red;font-weight:bold">JS ERROR: data='+data.length+' items, activeCat='+activeCat+'</td></tr>';
+}
+</script>
+</body>
+</html>
